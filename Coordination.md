@@ -2,9 +2,9 @@
 DUE FRI AT 5pm
 [PHASE 3 REQUIREMENTS](https://docs.google.com/document/d/1oaXD2gjbQTMcSbYllbsGI17IqQbSJP5T0lSpxT6BRAs/edit?tab=t.0)
 
-- [ ] Make sure readme is complete
+- [others_should_add_what_they_think_is_needed] Make sure readme is complete
     - [ ] Be sure to link video presentation
-- [ ] add in more mock data via mockaroo or similar
+- [x] add in more mock data via mockaroo or similar
 - [ ] add in bridge tables (which imo is great news -- we wont have to build a front end for the a few features)
 - [ ] Implement REST API to python (imo im not sure we need as many rows as we have -- which is also good news)
 - [ ] Jose Landing Page
