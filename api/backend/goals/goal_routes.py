@@ -30,7 +30,7 @@ def get_all_goals():
         
 
         current_app.logger.debug(f'Executing query: {query}')
-        cursor.execute(query, params)
+        cursor.execute(query)
         goals_data = cursor.fetchall()
         cursor.close()
 
