@@ -27,20 +27,23 @@ def get_all_goals():
 
         current_app.logger.debug(f'Query parameters - title: {country}, schedule: {focus_area}, notes: {founding_year}')
 
-        # Prepare the Base query
-        query = "SELECT * FROM global-GoalFlow WHERE 1=1"
-        params = []
+        # # Prepare the Base query
+        # query = "SELECT * FROM global-GoalFlow WHERE 1=1"
+        # params = []
 
-        # Add filters if provided
-        if country:
-            query += " AND Country = %s"
-            params.append(country)
-        if focus_area:
-            query += " AND Focus_Area = %s"
-            params.append(focus_area)
-        if founding_year:
-            query += " AND Founding_Year = %s"
-            params.append(founding_year)
+        # # Add filters if provided
+        # if country:
+        #     query += " AND Country = %s"
+        #     params.append(country)
+        # if focus_area:
+        #     query += " AND Focus_Area = %s"
+        #     params.append(focus_area)
+        # if founding_year:
+        #     query += " AND Founding_Year = %s"
+        #     params.append(founding_year)
+
+        query = "SELECT id, title, notes, schedule FROM goals g WHERE g.status = 'ACTIVE' LIMIT 3;"
+        
 
         current_app.logger.debug(f'Executing query: {query} with params: {params}')
         cursor.execute(query, params)
