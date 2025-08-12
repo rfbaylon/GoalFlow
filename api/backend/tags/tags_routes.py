@@ -3,22 +3,13 @@ from backend.db_connection import db
 from mysql.connector import Error
 from flask import current_app
 
-# Create a Blueprint for NGO routes
 tags = Blueprint("tags", __name__)
 
-
-# Get all NGOs with optional filtering by country, focus area, and founding year
-# Example: /ngo/ngos?country=United%20States&focus_area=Environmental%20Conservation
-@tags.route("/tags", methods=["GET"])
+@tags.route("/get_tag", methods=["GET"])
 def get_all_tags():
     try:
         current_app.logger.info('Starting get_all_tags request')
         cursor = db.get_db().cursor()
-
-        # Note: Query parameters are added after the main part of the URL.
-        # Here is an example:
-        # http://localhost:4000/ngo/ngos?founding_year=1971
-        # founding_year is the query param.
 
         # Get query parameters for filtering
         name = request.args.get("name")
@@ -53,10 +44,7 @@ def get_all_tags():
         current_app.logger.error(f'Database error in get_all_tags: {str(e)}')
         return jsonify({"error": str(e)}), 500
 
-# Create a new NGO
-# Required fields: Name, Country, Founding_Year, Focus_Area, Website
-# Example: POST /ngo/ngos with JSON body
-@tags.route("/tags", methods=["POST"])
+@tags.route("/create_tag", methods=["POST"])
 def create_tag():
     try:
         data = request.get_json()
@@ -69,9 +57,8 @@ def create_tag():
 
         cursor = db.get_db().cursor()
 
-        # Insert new NGO
         query = """
-        INSERT INTO users (name, color)
+        INSERT INTO tags (name, color)
         VALUES (%s, %s)
         """
         cursor.execute(
@@ -93,10 +80,10 @@ def create_tag():
     except Error as e:
         return jsonify({"error": str(e)}), 500
     
-@tags.route("/tags", methods = ["DELETE"])
+@tags.route("/delete_tag/<int:tag_id>", methods = ["DELETE"])
 def delete_tags(tag_id):
     try:
-        cursor = db.getdb().cursor()
+        cursor = db.get_db().cursor()
         
         cursor.execute("SELECT * FROM tags WHERE id = %s", (tag_id,))
         tag = cursor.fetchone()
@@ -105,16 +92,13 @@ def delete_tags(tag_id):
         
         cursor.execute("DELETE FROM tags WHERE id = %s", (tag_id,))
         db.get_db().commit()
-        cursor.cose()
+        cursor.close()
 
         return jsonify({"message": "tag deleted successfully"}), 200
     except Error as e: 
         return jsonify({"error": str(e)}), 500
 
-# Update an existing NGO's information
-# Can update any field except NGO_ID
-# Example: PUT /ngo/ngos/1 with JSON body containing fields to update
-@tags.route("/tags/<int:tag_id>", methods=["PUT"])
+@tags.route("/rename_tag/<int:tag_id>", methods=["PUT"])
 def rename_tag(tag_id):
     try:
         data = request.get_json()
@@ -148,6 +132,23 @@ def rename_tag(tag_id):
         return jsonify({"message": "tag updated successfully"}), 200
     except Error as e:
         return jsonify({"error": str(e)}), 500
+    
+@tags.route("tags/<int:tag_id>", methods=["GET"])
+def get_tag(tag_id):
+    try:
+        cursor = db.get_db().cursor()
+        cursor.execute("SELECT * FROM tags WHERE id = %s", (tag_id,))
+        tag_row = cursor.fetchone()
 
+        if not tag_row:
+            return jsonify({"error": "tag not found"}), 404
+
+        columns = [col[0] for col in cursor.description]
+        tag = dict(zip(columns, tag_row))
+
+        cursor.close()
+        return jsonify(tag), 200
+    except Error as e:
+        return jsonify({"error": str(e)}), 500
 
 
