@@ -8,6 +8,7 @@ from backend.db_connection import db
 from backend.simple.simple_routes import simple_routes
 from backend.goals.goal_routes import goals
 from backend.users.users_routes import users
+from backend.support.support_routes import support
 
 
 def create_app():
@@ -50,6 +51,7 @@ def create_app():
     app.register_blueprint(simple_routes)
     app.register_blueprint(goals, url_prefix="/goals")
     app.register_blueprint(users, url_prefix="/users")
+    app.register_blueprint(support, url_prefix="/support")
 
     # Don't forget to return the app object
     return app

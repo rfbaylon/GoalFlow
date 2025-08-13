@@ -160,7 +160,7 @@ userId          INT                                     NOT NULL,               
 location        VARCHAR(100),                                                         -- city name, state.?
 deviceType      ENUM('mobile', 'tablet', 'desktop')     NOT NULL,
 age             TINYINT                                 UNSIGNED,
-registeredAt    DATETIME                                NOT NULL DEFAULT CURRENT_TIMESTAMP,
+registeredAt    VARCHAR(100)                            NOT NULL,
 lastLogin       DATETIME,                                                             -- EXTRA ATTRIBUTE
 isActive        TINYINT(1)                              NOT NULL DEFAULT 1,           -- EXTRA ATTRIBUTE
 id              INT                                     AUTO_INCREMENT NOT NULL,      -- DIF. NAME

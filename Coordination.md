@@ -14,9 +14,10 @@ DUE FRI AT 5pm
 - [ ] Implement REST API to python (imo im not sure we need as many rows as we have -- which is also good news)
 
 - [ ] Jose Landing Page
-    - [ ] Jose Feature 1
-        - 3.4 Ryan is working on this
+    - [x] Jose Feature 1
+        - 3.4 Completed by Ryan
     - [ ] Jose Feature 2
+        - 3.1 Ryans working on this
     - [ ] Jose Feature 3
 
 - [ ] Jack Landing Page
