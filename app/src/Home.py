@@ -80,5 +80,5 @@ with right:
     if st.button('Add New Project', 
             type = 'primary', 
             use_container_width=False):
-        st.switch_page('pages/01_Add_New_Project.py')
+        st.switch_page('pages/Add_New_Project.py')
         

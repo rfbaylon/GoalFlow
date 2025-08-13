@@ -201,7 +201,7 @@ bottom_col1, bottom_col2, bottom_col3 = st.columns(3)
 
 with bottom_col1:
     if st.button("🚨 Create New Project", type="primary", use_container_width=True):
-        st.switch_page('pages/01_Add_New_Project.py')
+        st.switch_page('pages/Add_New_Project.py')
 
 with bottom_col2:
     if st.button("🗑 Delete Project", type="primary", use_container_width=True):
