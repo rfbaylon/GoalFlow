@@ -64,7 +64,7 @@ def archive_bug_report(bug_report_id):
         cursor = db.get_db().cursor()
         cursor.execute("SELECT * FROM bug_reports WHERE id = %s", (bug_report_id,))
         if not cursor.fetchone():
-            return jsonify({"error": "tag not found"}), 404
+            return jsonify({"error": "bug report not found"}), 404
         
         query = 'UPDATE bug_reports SET status = 1 WHERE id = %s'
         cursor.execute(query, (bug_report_id,))
