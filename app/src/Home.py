@@ -1,41 +1,3 @@
-##################################################
-# This is the main/entry-point file for the 
-# sample application for your project
-##################################################
-
-# Set up basic logging infrastructure
-import logging
-logging.basicConfig(format='%(filename)s:%(lineno)s:%(levelname)s -- %(message)s', level=logging.INFO)
-logger = logging.getLogger(__name__)
-
-# import the main streamlit library as well
-# as SideBarLinks function from src/modules folder
-import streamlit as st
-from modules.nav import SideBarLinks
-
-# streamlit supports reguarl and wide layout (how the controls
-# are organized/displayed on the screen).
-st.set_page_config(layout = 'wide')
-
-# If a user is at this page, we assume they are not 
-# authenticated.  So we change the 'authenticated' value
-# in the streamlit session_state to false. 
-st.session_state['authenticated'] = False
-
-# Use the SideBarLinks function from src/modules/nav.py to control
-# the links displayed on the left-side panel. 
-# IMPORTANT: ensure src/.streamlit/config.toml sets
-# showSidebarNavigation = false in the [client] section
-SideBarLinks(show_home=True)
-
-# ***************************************************
-#    The major content of this page
-# ***************************************************
-
-# set the title of the page and provide a simple prompt. 
-logger.info("Loading the Home page of the app")
-
-
 import logging
 logging.basicConfig(format='%(filename)s:%(lineno)s:%(levelname)s -- %(message)s', level=logging.INFO)
 logger = logging.getLogger(__name__)
@@ -101,7 +63,24 @@ with left:
 with right:
     st.header("Right Half")
     st.write("Content for the right side")
+
+    if st.button('Avery View', 
+            type = 'primary', 
+            use_container_width=False):
+        st.switch_page('pages/AveryHomePage.py')
+
+    if st.button('Alan Home', 
+            type = 'primary', 
+            use_container_width=False):
+        st.switch_page('pages/Dr.AlanHomePage.py')
+
+    if st.button('Developer View', 
+            type = 'primary', 
+            use_container_width=False):
+        st.switch_page('pages/JoseHomePage.py')
+
     if st.button('Add New Project', 
             type = 'primary', 
             use_container_width=False):
         st.switch_page('pages/01_Add_New_Project.py')
+        
