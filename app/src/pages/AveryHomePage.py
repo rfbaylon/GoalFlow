@@ -156,12 +156,15 @@ with m4:
 # Action buttons at bottom
 st.write("---")
 b1, b2, b3 = st.columns(3)
+
 with b1:
-    if st.button("➕ Add New Project", type="primary", use_container_width=True):
-        st.switch_page("pages/05_Add_Project.py")
+    if st.button("🚨 Create New Project", type="primary", use_container_width=True):
+        st.switch_page('pages/01_Add_New_Project.py')
+
 with b2:
-    if st.button("📝 Add Daily Log", type="primary", use_container_width=True):
-        st.switch_page("pages/06_Add_Log.py")
+    if st.button("🗑 Delete Project", type="primary", use_container_width=True):
+        st.switch_page('pages/Delete_Project.py')
+
 with b3:
-    if st.button("📤 Export Weekly Report", type="primary", use_container_width=True):
-        st.switch_page("pages/07_Export_Report.py")
+    if st.button("🏠 Return To Dashboard", type="primary", use_container_width=True):
+        st.switch_page('HomePage.py')

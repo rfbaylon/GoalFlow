@@ -111,9 +111,9 @@ with col2:
     # System Charts Section
     st.write("### 📊 SYSTEM OVERVIEW")
     
-    userstats = requests.get('http://web-api:4000/users/appstats').json()
-    userstats = [list(item.values()) for item in userstats]
-    st.write(userstats)
+    #userstats = requests.get('http://web-api:4000/users').json()
+    #userstats = [list(item.values()) for item in userstats]
+    #st.write(userstats)
     
     # User growth chart
     # fig_users = px.line(user_growth_data, x='Month', y=['Active Users', 'New Signups'], 
@@ -178,13 +178,13 @@ st.write("---")
 bottom_col1, bottom_col2, bottom_col3 = st.columns(3)
 
 with bottom_col1:
-    if st.button("🚨 Create Bug Report", type="primary", use_container_width=True):
-        st.switch_page('pages/05_Create_Bug_Report.py')
+    if st.button("🚨 Reply To Bug Report", type="primary", use_container_width=True):
+        st.switch_page('pages/Add_New_Post.py')
 
 with bottom_col2:
-    if st.button("📧 Send User Notifications", type="primary", use_container_width=True):
-        st.switch_page('pages/06_User_Notifications.py')
+    if st.button("🗑 Delete Post Reply", type="primary", use_container_width=True):
+        st.switch_page('pages/Delete_Post.py')
 
 with bottom_col3:
-    if st.button("📊 Generate System Report", type="primary", use_container_width=True):
-        st.switch_page('pages/07_System_Report.py')
+    if st.button("🏠 Return To Dashboard", type="primary", use_container_width=True):
+        st.switch_page('HomePage.py')

@@ -157,13 +157,13 @@ st.write("---")
 bottom_col1, bottom_col2, bottom_col3 = st.columns(3)
 
 with bottom_col1:
-    if st.button("➕ Add New Company Goal", type="primary", use_container_width=True):
-        st.switch_page('pages/05_Add_Goal.py')
+    if st.button("🚨 Create New Company Goal", type="primary", use_container_width=True):
+        st.switch_page('pages/Create_Company_Goal.py')
 
 with bottom_col2:
-    if st.button("📋 Assign Tasks to Employees", type="primary", use_container_width=True):
-        st.switch_page('pages/06_Assign_Tasks.py')
+    if st.button("🗑 Delete Company Goal", type="primary", use_container_width=True):
+        st.switch_page('pages/Delete_Comapny_Goal.py')
 
 with bottom_col3:
-    if st.button("📊 Generate Financial Report", type="primary", use_container_width=True):
-        st.switch_page('pages/07_Financial_Report.py') 
+    if st.button("🏠 Return To Dashboard", type="primary", use_container_width=True):
+        st.switch_page('HomePage.py')

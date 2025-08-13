@@ -16,7 +16,7 @@ st.set_page_config(layout='wide')
 col_back, col_title = st.columns([1, 4])
 with col_back:
     if st.button("← Back to Dashboard"):
-        st.switch_page('pages/00_Dr_Alan_Home_Page.py')
+        st.switch_page('pages/Dr.AlanHomePage.py')
 
 with col_title:
     st.title("📊 Statistics Research Hub")
