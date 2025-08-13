@@ -11,16 +11,11 @@ goals = Blueprint("goals", __name__)
 
 # Get all NGOs with optional filtering by country, focus area, and founding year
 # Example: /ngo/ngos?country=United%20States&focus_area=Environmental%20Conservation
-@goals.route("/", methods=["GET"])
+@goals.route("/active", methods=["GET"])
 def get_all_goals():
     try:
         current_app.logger.info('Starting get_all_goals request')
         cursor = db.get_db().cursor()
-
-        # Note: Query parameters are added after the main part of the URL.
-        # Here is an example:
-        # http://localhost:4000/ngo/ngos?founding_year=1971
-        # founding_year is the query param.
 
         # Get query parameters for filtering
         title = request.args.get("title")
@@ -43,6 +38,25 @@ def get_all_goals():
         current_app.logger.error(f'Database error in get_all_ngos: {str(e)}')
         return jsonify({"error": str(e)}), 500
 
+@goals.route("/subgoals", methods=["GET"])
+def get_subgoal():
+    try:
+        current_app.logger.info('Starting get_all_goals request')
+        cursor = db.get_db().cursor()
+        query = "SELECT g.id, sg.title FROM subgoals sg JOIN goals g ON g.id = sg.goalsid;"
+
+        current_app.logger.debug(f'Executing query: {query}')
+        cursor.execute(query)
+        goals_data = cursor.fetchall()
+        cursor.close()
+
+        current_app.logger.info(f'Successfully retrieved {len(goals_data)} NGOs')
+        return jsonify(goals_data), 200
+
+    except Error as e:
+        current_app.logger.error(f'Database error in get_all_ngos: {str(e)}')
+        return jsonify({"error": str(e)}), 500
+    
 
 # Get detailed information about a specific NGO including its projects and donors
 # # Example: /ngo/ngos/1
