@@ -106,20 +106,10 @@ with col1:
 
 with col2:
     st.write("### ⚡ QUICK ACTIONS")
-    a1, a2 = st.columns(2)
+    a1 = st.columns(1)
     with a1:
-        if st.button("📁 Projects", use_container_width=True):
-            st.switch_page("pages/01_Projects.py")
-    with a2:
-        if st.button("✅ Habits / Logs", use_container_width=True):
-            st.switch_page("pages/02_Habits.py")
-    a3, a4 = st.columns(2)
-    with a3:
-        if st.button("📊 Analytics", use_container_width=True):
-            st.switch_page("pages/03_Analytics.py")
-    with a4:
         if st.button("🗄️ Archive", use_container_width=True):
-            st.switch_page("pages/04_Archive.py")
+            st.switch_page("pages/01_Archive.py")
 
     st.write("---")
     st.write("### ✍️ DAILY LOGS")

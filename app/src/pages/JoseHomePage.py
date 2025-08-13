@@ -104,17 +104,9 @@ with col2:
         if st.button("🐛 Bug Reports", use_container_width=True):
             st.switch_page('pages/01_Bug_Reports.py')
     
-    with action_col2:
-        if st.button("👥 User Support", use_container_width=True):
-            st.switch_page('pages/02_User_Support.py')
-    
     with action_col1:
         if st.button("📊 App Analytics", use_container_width=True):
             st.switch_page('pages/03_App_Analytics.py')
-    
-    with action_col2:
-        if st.button("💬 Community", use_container_width=True):
-            st.switch_page('pages/04_Community_Forum.py')
     
     st.write("---")
     

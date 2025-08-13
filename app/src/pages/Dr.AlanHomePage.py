@@ -104,17 +104,9 @@ with col2:
         if st.button("🔬 Research", use_container_width=True):
             st.switch_page('pages/01_Research_Projects.py')
     
-    with action_col2:
-        if st.button("📊 Statistics", use_container_width=True):
-            st.switch_page('pages/02_Statistics_Work.py')
-    
     with action_col1:
         if st.button("🎓 Teaching", use_container_width=True):
             st.switch_page('pages/03_Teaching_Tasks.py')
-    
-    with action_col2:
-        if st.button("🏷️ Categories", use_container_width=True):
-            st.switch_page('pages/04_Project_Tags.py')
     
     st.write("---")
     
