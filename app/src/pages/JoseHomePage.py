@@ -5,6 +5,7 @@ import streamlit as st
 import pandas as pd
 import plotly.express as px
 import plotly.graph_objects as go
+import requests
 
 
 st.set_page_config(layout='wide')
@@ -104,29 +105,23 @@ with col2:
         if st.button("🐛 Bug Reports", use_container_width=True):
             st.switch_page('pages/01_Bug_Reports.py')
     
-    with action_col1:
-        if st.button("📊 App Analytics", use_container_width=True):
-            st.switch_page('pages/03_App_Analytics.py')
     
     st.write("---")
     
     # System Charts Section
     st.write("### 📊 SYSTEM OVERVIEW")
     
-    # Sample data for system charts
-    user_growth_data = pd.DataFrame({
-        'Month': ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'],
-        'Active Users': [1200, 1350, 1580, 1750, 1920, 2100],
-        'New Signups': [150, 200, 230, 170, 170, 180]
-    })
+    userstats = requests.get('http://web-api:4000/users/appstats').json()
+    userstats = [list(item.values()) for item in userstats]
+    st.write(userstats)
     
     # User growth chart
-    fig_users = px.line(user_growth_data, x='Month', y=['Active Users', 'New Signups'], 
-                       title="User Growth Trends",
-                       color_discrete_map={'Active Users': '#1f77b4', 'New Signups': '#ff7f0e'})
-    fig_users.update_layout(height=200, showlegend=True, 
-                           title_font_size=12, margin=dict(l=0, r=0, t=30, b=0))
-    st.plotly_chart(fig_users, use_container_width=True)
+    # fig_users = px.line(user_growth_data, x='Month', y=['Active Users', 'New Signups'], 
+    #                    title="User Growth Trends",
+    #                    color_discrete_map={'Active Users': '#1f77b4', 'New Signups': '#ff7f0e'})
+    # fig_users.update_layout(height=200, showlegend=True, 
+    #                        title_font_size=12, margin=dict(l=0, r=0, t=30, b=0))
+    # st.plotly_chart(fig_users, use_container_width=True)
     
     # Bug status pie chart
     bug_data = pd.DataFrame({
