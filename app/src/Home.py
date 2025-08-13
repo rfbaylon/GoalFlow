@@ -12,8 +12,6 @@ SideBarLinks(show_home=True)
 st.write("# Welcome to GoalFlow!")
 st.write("What are we going to get done today?")
 
-API_URL = "http://web-api:4000/goals"
-
 
 left, right = st.columns(2)
 
