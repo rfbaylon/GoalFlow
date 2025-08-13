@@ -1,17 +1,16 @@
 import logging
 logger = logging.getLogger(__name__)
-
+logging.basicConfig(format='%(filename)s:%(lineno)s:%(levelname)s -- %(message)s', level=logging.INFO)
+from modules.nav import SideBarLinks
 import streamlit as st
+import requests
 import pandas as pd
 import plotly.express as px
-import plotly.graph_objects as go
-import requests
 
 
-st.set_page_config(layout='wide')
-
-# Show appropriate sidebar links for the role of the currently logged in user
-#SideBarLinks()
+st.set_page_config(layout = 'wide')
+st.session_state['authenticated'] = False
+SideBarLinks(show_home=True)
 
 # Header
 st.title("🛠️ GOOD MORNING, JOSE!")
@@ -110,18 +109,27 @@ with col2:
     
     # System Charts Section
     st.write("### 📊 SYSTEM OVERVIEW")
+    userstats = requests.get('http://web-api:4000/users/appstats').json()
+    userstats = [list(item.values()) for item in userstats]
+
+    def make_userstats(data):
+        df = pd.DataFrame(data, columns=['registration_date', 'user_id'])
+        
+        # Convert string dates to datetime
+        df['registration_date'] = pd.to_datetime(df['registration_date'])
+        df['date'] = df['registration_date'].dt.date
+
+        # User count
+        df = df.sort_values('date').reset_index(drop=True)
+        df['user_count'] = range(1, len(df) + 1)
     
-    #userstats = requests.get('http://web-api:4000/users').json()
-    #userstats = [list(item.values()) for item in userstats]
-    #st.write(userstats)
-    
-    # User growth chart
-    # fig_users = px.line(user_growth_data, x='Month', y=['Active Users', 'New Signups'], 
-    #                    title="User Growth Trends",
-    #                    color_discrete_map={'Active Users': '#1f77b4', 'New Signups': '#ff7f0e'})
-    # fig_users.update_layout(height=200, showlegend=True, 
-    #                        title_font_size=12, margin=dict(l=0, r=0, t=30, b=0))
-    # st.plotly_chart(fig_users, use_container_width=True)
+        return df
+    df = make_userstats(userstats)
+    st.dataframe(df)
+
+    fig_users = px.line(df, x='date', y='user_count', title="User Growth Trends")
+    fig_users.update_layout(height=200, showlegend=True, title_font_size=12, margin=dict(l=0, r=0, t=30, b=0))
+    st.plotly_chart(fig_users, use_container_width=True)
     
     # Bug status pie chart
     bug_data = pd.DataFrame({

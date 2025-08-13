@@ -3,35 +3,16 @@ from backend.db_connection import db
 from mysql.connector import Error
 from flask import current_app
 
-
-
-# Create a Blueprint for NGO routes
 goals = Blueprint("goals", __name__)
 
-
-# Get all NGOs with optional filtering by country, focus area, and founding year
-# Example: /ngo/ngos?country=United%20States&focus_area=Environmental%20Conservation
 @goals.route("/active", methods=["GET"])
 def get_all_goals():
     try:
-        current_app.logger.info('Starting get_all_goals request')
         cursor = db.get_db().cursor()
-
-        # Get query parameters for filtering
-        title = request.args.get("title")
-        schedule = request.args.get("schedule") 
-        notes = request.args.get("notes")
-
-        current_app.logger.debug(f'Query parameters - title: {title}, schedule: {schedule}, notes: {notes}')
         query = "SELECT id, title, notes, schedule FROM goals g WHERE g.status = 'ACTIVE' LIMIT 3;"
-        print(query)
-
-        current_app.logger.debug(f'Executing query: {query}')
         cursor.execute(query)
         goals_data = cursor.fetchall()
         cursor.close()
-
-        current_app.logger.info(f'Successfully retrieved {len(goals_data)} NGOs')
         return jsonify(goals_data), 200
 
     except Error as e:
@@ -57,6 +38,7 @@ def get_subgoal():
         current_app.logger.error(f'Database error in get_all_ngos: {str(e)}')
         return jsonify({"error": str(e)}), 500
     
+
 
 # Get detailed information about a specific NGO including its projects and donors
 # # Example: /ngo/ngos/1
