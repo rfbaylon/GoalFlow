@@ -106,7 +106,7 @@ with col1:
 
 with col2:
     st.write("### ⚡ QUICK ACTIONS")
-    a1 = st.columns(1)
+    a1 = st.columns(1)[0]
     with a1:
         if st.button("🗄️ Archive", use_container_width=True):
             st.switch_page("pages/01_Archive.py")
