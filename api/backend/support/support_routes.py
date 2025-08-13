@@ -19,56 +19,74 @@ def get_appstats():
         return jsonify({"error": str(e)}), 500
 
 
-# support.route("/bug_reports", methods=["GET"])
-# def get_bug_reports():
-#     try:
-#         current_app.logger.info('Starting get_bug_reports request')
-#         cursor = db.get_db().cursor()
+@support.route("/bugs/<int:bug_id>/complete", methods=["PUT"])
+def mark_bug_complete(bug_id):
+    try:
+        cursor = db.get_db().cursor()
+        cursor.execute("SELECT * FROM bug_reports WHERE id = %s", (bug_id,))
+        bug = cursor.fetchone()
+        if not bug:
+            return jsonify({"error": "Bug not found"}), 404
+        # Update bug status to completed (1)
+        cursor.execute("UPDATE bugs SET completed = 1 WHERE id = %s", (bug_id,))
+        db.get_db().commit()
+        cursor.close()
 
-#         # Get query parameters for filtering
-#         userId = request.args.get("userId")
-#         title = request.args.get("title")
-#         description = request.args.get("description")
-#         status = request.args.get("status")
-#         priority = request.args.get("priority")
+        return jsonify({"message": "Bug marked as completed successfully"}), 200
+    except Error as e: 
+        return jsonify({"error": str(e)}), 500
+
+
+support.route("/bug_reports", methods=["GET"])
+def get_bug_reports():
+    try:
+        current_app.logger.info('Starting get_bug_reports request')
+        cursor = db.get_db().cursor()
+
+        # Get query parameters for filtering
+        userId = request.args.get("userId")
+        title = request.args.get("title")
+        description = request.args.get("description")
+        status = request.args.get("status")
+        priority = request.args.get("priority")
         
-#         current_app.logger.debug(f'Query parameters - userId: {userId}, title: {title}, description: {description}, status: {status}, priority: {priority}')
+        current_app.logger.debug(f'Query parameters - userId: {userId}, title: {title}, description: {description}, status: {status}, priority: {priority}')
 
-#         # Prepare the Base query
-#         query = "SELECT * FROM bug_reports WHERE 1=1"
-#         params = []
+        # Prepare the Base query
+        query = "SELECT * FROM bug_reports WHERE 1=1"
+        params = []
 
-#         # Add filters if provided
-#         if userId:
-#             query += " AND userId = %s"
-#             params.append(userId)
-#         if title:
-#             query += " AND title = %s"
-#             params.append(title)
-#         if description:
-#             query += " AND description = %s"
-#             params.append(description)
-#         if status:
-#             query += " AND status = %s"
-#             params.append(status)
-#         if priority:
-#             query += " AND priority = %s"
-#             params.append(priority)
+        # Add filters if provided
+        if userId:
+            query += " AND userId = %s"
+            params.append(userId)
+        if title:
+            query += " AND title = %s"
+            params.append(title)
+        if description:
+            query += " AND description = %s"
+            params.append(description)
+        if status:
+            query += " AND status = %s"
+            params.append(status)
+        if priority:
+            query += " AND priority = %s"
+            params.append(priority)
 
-#         current_app.logger.debug(f'Executing query: {query} with params: {params}')
-#         cursor.execute(query, params)
-#         results = cursor.fetchall()
+        current_app.logger.debug(f'Executing query: {query} with params: {params}')
+        cursor.execute(query, params)
+        results = cursor.fetchall()
 
-#         # Get column names to map to dictionaries
-#         columns = [col[0] for col in cursor.description]
-#         bug_reports = [dict(zip(columns, row)) for row in results]
-#         cursor.close()
+        # Get column names to map to dictionaries
+        columns = [col[0] for col in cursor.description]
+        bug_reports = [dict(zip(columns, row)) for row in results]
+        cursor.close()
 
-#         current_app.logger.info(f'Successfully retrieved {len(bug_reports)} bug reports')
-#         return jsonify(bug_reports), 200
-#     except Error as e:
-#         current_app.logger.error(f'Database error in get_bug_reports: {str(e)}')
-#         return jsonify({"error": str(e)}), 500
+        current_app.logger.info(f'Successfully retrieved {len(bug_reports)} bug reports')
+        return jsonify(bug_reports), 200
+    except Error as e:
+        current_app.logger.error(f'Database error in get_bug_reports: {str(e)}')
+        return jsonify({"error": str(e)}), 500
 
 @support.route("/bug_reports/<int:bug_reports_id>", methods=["PUT"])
 def archive_bug_report(bug_report_id):

@@ -13,11 +13,13 @@ DUE FRI AT 5pm
 
 - [ ] Implement REST API to python (imo im not sure we need as many rows as we have -- which is also good news)
 
+PLEASE LABEL WHERE YOUR PUT/POST/DELETE ROUTES ARE
+
 - [ ] Jose Landing Page
     - [x] Jose Feature 1
         - 3.4 Completed by Ryan
-    - [ ] Jose Feature 2
-        - 3.1 Ryans working on this
+    - [x] Jose Feature 2
+        - 3.1 Completed by Ryan :D
     - [ ] Jose Feature 3
 
 - [ ] Jack Landing Page
@@ -36,6 +38,15 @@ DUE FRI AT 5pm
     - [ ] Avery Feature 2
         - 1.5 (Ryan is working on this)
     - [ ] Avery Feature 3
+
+
+TOTAL ROUTES:
+users - 6 (1 post, 1 delete)
+support - 6 (1 put, 1 delete)
+tags - 5 (1 post, 1 delete, 1 put)
+goals - 2
+daily tasks - 5
+
 
 optional : [x] Change attribute types where possible to enumberation (is this helpful?)
     - I (Fabrizio) could do this as it would make the attribute make more sense, but not sure if its useful now?
