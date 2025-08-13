@@ -5,7 +5,7 @@ import streamlit as st
 import pandas as pd
 import plotly.express as px
 import plotly.graph_objects as go
-from modules.nav import SideBarLinks
+
 
 st.set_page_config(layout='wide')
 
@@ -80,20 +80,8 @@ with col2:
     action_col1, action_col2 = st.columns(2)
     
     with action_col1:
-        if st.button("📈 Financial", use_container_width=True):
+        if st.button("📈 Financial Insights", use_container_width=True):
             st.switch_page('pages/01_Financial_Goals.py')
-    
-    with action_col2:
-        if st.button("👥 Team Goals", use_container_width=True):
-            st.switch_page('pages/02_Team_Goals.py')
-    
-    with action_col1:
-        if st.button("📊 Analytics", use_container_width=True):
-            st.switch_page('pages/03_Analytics.py')
-    
-    with action_col2:
-        if st.button("⏰ Deadlines", use_container_width=True):
-            st.switch_page('pages/04_Deadlines.py')
     
     st.write("---")
     
