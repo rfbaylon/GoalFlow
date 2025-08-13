@@ -5,7 +5,6 @@ import streamlit as st
 import pandas as pd
 import plotly.express as px
 from datetime import date, datetime
-from modules.nav import SideBarLinks
 
 st.set_page_config(layout='wide', page_title="🎨 Avery — Home")
 
@@ -61,17 +60,48 @@ col1, col2 = st.columns([2, 1])
 
 with col1:
     st.write("### 🗂️ MAIN PROJECTS")
-    for _, row in projects_df.sort_values(by=["priority", "d_day"]).iterrows():
+    for i, (_, row) in enumerate(projects_df.sort_values(by=["priority", "d_day"]).iterrows()):
         with st.container():
             left, right = st.columns([3, 1])
+
             with left:
-                st.write(f"**{row['title']}**  — *{row['priority']}*")
-                st.write(f"Category: {row['category']}  |  Phase: {row['phase']} / {row['phases_total']}")
+                st.write(f"{row['title']}")
+                st.write(f"Category: {row['category']}")
                 st.write(f"D-{row['d_day']}  (Due: {row['deadline'].strftime('%b %d, %Y')})")
                 st.progress(row["progress"])
+
             with right:
-                st.write("✏️ Edit")
-                st.write("🗂️ Details")
+                priority_options = ["🔴 Critical", "🟠 High", "🟡 Medium", "🟢 Low"]
+                prio_map = {"Critical": "🔴 Critical", "High": "🟠 High", "Medium": "🟡 Medium", "Low": "🟢 Low"}
+                default_prio_label = prio_map.get(row["priority"], "🟡 Medium")
+                default_prio_idx = priority_options.index(default_prio_label)
+
+                st.selectbox(
+                    "Priority:",
+                    priority_options,
+                    index=default_prio_idx,
+                    key=f"prio_{i}_{row['title']}"
+                )
+
+                status_options = ["Planning", "Research", "Writing", "Review", "Published"]
+                prog = float(row["progress"])
+                if prog >= 0.99:
+                    default_status = "Published"
+                elif prog >= 0.80:
+                    default_status = "Review"
+                elif prog >= 0.50:
+                    default_status = "Writing"
+                elif prog > 0:
+                    default_status = "Research"
+                else:
+                    default_status = "Planning"
+
+                st.selectbox(
+                    "Status:",
+                    status_options,
+                    index=status_options.index(default_status),
+                    key=f"status_{i}_{row['title']}"
+                )
         st.write("---")
 
 with col2:
