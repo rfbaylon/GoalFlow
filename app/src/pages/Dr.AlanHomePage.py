@@ -7,6 +7,7 @@ import plotly.express as px
 import plotly.graph_objects as go
 
 
+
 st.set_page_config(layout='wide')
 
 # Show appropriate sidebar links for the role of the currently logged in user
@@ -35,7 +36,7 @@ with col1:
                                    index=0, key="proj1_priority")
         with proj1_col3:
             status1 = st.selectbox("Status:", 
-                                 ["Planning", "Research", "Writing", "Review", "Published"],
+                                 ["ON ICE", "PLANNED", "ACTIVE", "ARCHIVED"],
                                  index=1, key="proj1_status")
     
     st.write("---")
@@ -52,7 +53,7 @@ with col1:
                                    index=1, key="proj2_priority")
         with proj2_col3:
             status2 = st.selectbox("Status:", 
-                                 ["Planning", "Research", "Writing", "Review", "Published"],
+                                 ["ON ICE", "PLANNED", "ACTIVE", "ARCHIVED"],
                                  index=0, key="proj2_status")
     
     st.write("---")
@@ -69,7 +70,7 @@ with col1:
                                    index=2, key="proj3_priority")
         with proj3_col3:
             status3 = st.selectbox("Status:", 
-                                 ["Planning", "Research", "Writing", "Review", "Published"],
+                                 ["ON ICE", "PLANNED", "ACTIVE", "ARCHIVED"],
                                  index=3, key="proj3_status")
     
     st.write("---")
@@ -86,27 +87,13 @@ with col1:
                                    index=3, key="proj4_priority")
         with proj4_col3:
             status4 = st.selectbox("Status:", 
-                                 ["Planning", "Research", "Writing", "Review", "Published"],
+                                 ["ON ICE", "PLANNED", "ACTVIE", "ARCHIVED"],
                                  index=1, key="proj4_status")
     
     # Save changes button
     if st.button("💾 Save All Changes", type="secondary", use_container_width=True):
         st.success("✅ Research projects updated successfully!")
         # Here you could add API calls to save to database
-
-with col2:
-    st.write("### ⚡ ACADEMIC ACTIONS")
-    
-    # Action buttons in a 2x2 grid
-    action_col1, action_col2 = st.columns(2)
-    
-    with action_col1:
-        if st.button("🔬 Research", use_container_width=True):
-            st.switch_page('pages/01_Research_Projects.py')
-    
-    with action_col1:
-        if st.button("🎓 Teaching", use_container_width=True):
-            st.switch_page('pages/03_Teaching_Tasks.py')
     
     st.write("---")
     
@@ -213,13 +200,13 @@ st.write("---")
 bottom_col1, bottom_col2, bottom_col3 = st.columns(3)
 
 with bottom_col1:
-    if st.button("➕ Add New Research Project", type="primary", use_container_width=True):
-        st.switch_page('pages/05_Add_Research_Project.py')
+    if st.button("🚨 Create New Project", type="primary", use_container_width=True):
+        st.switch_page('pages/01_Add_New_Project.py')
 
 with bottom_col2:
-    if st.button("📋 Manage Daily Tasks", type="primary", use_container_width=True):
-        st.switch_page('pages/06_Daily_Tasks.py')
+    if st.button("🗑 Delete Project", type="primary", use_container_width=True):
+        st.switch_page('pages/Delete_Project.py')
 
 with bottom_col3:
-    if st.button("📊 Generate Progress Report", type="primary", use_container_width=True):
-        st.switch_page('pages/07_Progress_Report.py')
+    if st.button("🏠 Return To Dashboard", type="primary", use_container_width=True):
+        st.switch_page('HomePage.py')
