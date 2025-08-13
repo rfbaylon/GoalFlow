@@ -5,6 +5,20 @@ from flask import current_app
 
 users = Blueprint("users", __name__)
 
+@users.route("/appstats", methods=["GET"])
+def get_appstats():
+    try:
+        cursor = db.get_db().cursor()
+        query = "SELECT userId, registeredAt FROM user_data"
+        cursor.execute(query)
+        stats = cursor.fetchall()
+        cursor.close()
+        return jsonify(stats), 200
+
+    except Error as e:
+        current_app.logger.error(f'Database error in get_all_ngos: {str(e)}')
+        return jsonify({"error": str(e)}), 500
+
 @users.route("/users", methods=["GET"])
 def get_all_users():
     try:
