@@ -63,7 +63,6 @@ updatedAt       DATETIME,                       -- EXTRA ATTRIBUTE
 publishedAt     DATETIME,                       -- EXTRA ATTRIBUTE
 slug            VARCHAR(100)        NOT NULL,   -- EXTRA ATTRIBUTE
 content         TEXT,
-tag             INT                 NOT NULL,
 id              INT                 AUTO_INCREMENT NOT NULL,    -- DIF. NAME
 
 PRIMARY KEY (id),
@@ -73,11 +72,31 @@ INDEX idx_authorId (authorId),
 
 FOREIGN KEY (authorId) REFERENCES users(id)
  ON UPDATE RESTRICT
- ON DELETE CASCADE,
-
-FOREIGN KEY (tag) REFERENCES tags(id)
- ON UPDATE RESTRICT
  ON DELETE CASCADE
+);
+
+
+
+
+
+-- POSTS_TAGS   -  (BRIDGE TABLE) 
+DROP TABLE IF EXISTS posts_tags;
+CREATE TABLE posts_tags (
+post_id       INT         NOT NULL,
+tag_id        INT         NOT NULL,
+
+PRIMARY KEY (post_id, tag_id),
+
+INDEX idx_posts_tags_post (post_id),
+INDEX idx_posts_tags_tag  (tag_id),
+
+FOREIGN KEY (post_id) REFERENCES posts(id) 
+ ON DELETE CASCADE 
+ ON UPDATE CASCADE,
+
+FOREIGN KEY (tag_id)  REFERENCES tags(id)  
+ ON DELETE CASCADE 
+ ON UPDATE CASCADE
 );
 
 
@@ -93,7 +112,6 @@ title           VARCHAR(100)        NOT NULL,
 createdAt       DATETIME            NOT NULL,
 publishedAt     DATETIME,                       -- EXTRA ATTRIBUTE
 content         TEXT,
-tag             INT                 NOT NULL,
 id              INT                 AUTO_INCREMENT NOT NULL,    -- DIF. NAME
 
 PRIMARY KEY (id),
@@ -106,8 +124,31 @@ FOREIGN KEY (userId) REFERENCES users(id)
  ON DELETE CASCADE,
 
 FOREIGN KEY (postId) REFERENCES posts(id)
-ON UPDATE RESTRICT
-ON DELETE CASCADE
+ ON UPDATE RESTRICT
+ ON DELETE CASCADE
+);
+
+
+
+
+-- POST_REPLY_TAGS   -  (BRIDGE TABLE) 
+DROP TABLE IF EXISTS post_reply_tags;
+CREATE TABLE post_reply_tags (
+post_reply_id   INT     NOT NULL,
+tag_id          INT     NOT NULL,
+
+PRIMARY KEY (post_reply_id, tag_id),
+
+INDEX idx_post_reply_tags_pr (post_reply_id),
+INDEX idx_post_reply_tags_tag (tag_id),
+
+FOREIGN KEY (post_reply_id) REFERENCES post_reply(id) 
+ ON DELETE CASCADE 
+ ON UPDATE CASCADE,
+
+FOREIGN KEY (tag_id) REFERENCES tags(id)
+ ON DELETE CASCADE 
+ ON UPDATE CASCADE
 );
 
 
@@ -203,7 +244,6 @@ FOREIGN KEY (userId) REFERENCES users(id)
 DROP TABLE IF EXISTS daily_tasks;
 CREATE TABLE IF NOT EXISTS daily_tasks (
 userId          INT                 NOT NULL,   -- NEEDED EXTRA ATTRIBUTE
-tagId           INT                 NOT NULL,   -- NEEDED EXTRA ATTRIBUTE
 title           VARCHAR(75)         NOT NULL,
 metaTitle       VARCHAR(100),                   -- EXTRA ATTRIBUTE
 slug            VARCHAR(100)        NOT NULL,   -- EXTRA ATTRIBUTE
@@ -222,11 +262,31 @@ INDEX idx_status (status),
 
 FOREIGN KEY (userId) REFERENCES users(id)
  ON UPDATE RESTRICT
- ON DELETE CASCADE,
-
-FOREIGN KEY (tagId) REFERENCES tags(id)
- ON UPDATE RESTRICT
  ON DELETE CASCADE
+);
+
+
+
+
+
+-- DAILY_TASKS_TAGS   -  (BRIDGE TABLE) 
+DROP TABLE IF EXISTS daily_tasks_tags;
+CREATE TABLE daily_tasks_tags (
+daily_task_id       INT         NOT NULL,
+tag_id              INT         NOT NULL,
+
+PRIMARY KEY (daily_task_id, tag_id),
+
+INDEX idx_daily_tasks_tags_dt (daily_task_id),
+INDEX idx_daily_tasks_tags_tag (tag_id),
+
+FOREIGN KEY (daily_task_id) REFERENCES daily_tasks(id) 
+ ON DELETE CASCADE 
+ ON UPDATE CASCADE,
+
+FOREIGN KEY (tag_id) REFERENCES tags(id)
+ ON DELETE CASCADE 
+ ON UPDATE CASCADE
 );
 
 
@@ -237,7 +297,6 @@ FOREIGN KEY (tagId) REFERENCES tags(id)
 DROP TABLE IF EXISTS goals;
 CREATE TABLE IF NOT EXISTS goals (
 userId          INT                 NOT NULL,                   -- NEEDED EXTRA ATTRIBUTE
-tagId           INT                 NOT NULL,                   -- NEEDED EXTRA ATTRIBUTE
 title           VARCHAR(75)         NOT NULL,
 notes           TEXT,
 onIce           TINYINT(1)          NOT NULL DEFAULT 0,
@@ -252,7 +311,6 @@ id              INT                 AUTO_INCREMENT NOT NULL,    -- DIF. NAME
 PRIMARY KEY (id),
 
 INDEX idx_userId (userId),
-INDEX idx_tagId (tagId),
 INDEX idx_status (status),
 INDEX idx_priority (priority),
 INDEX idx_createdAt (createdAt),
@@ -260,11 +318,31 @@ INDEX idx_completedAt (completedAt),
 
 FOREIGN KEY (userId) REFERENCES users(id)
  ON UPDATE RESTRICT
- ON DELETE CASCADE,
-
-FOREIGN KEY (tagId) REFERENCES tags(id)
- ON UPDATE RESTRICT
  ON DELETE CASCADE
+);
+
+
+
+
+
+-- GOALS_TAGS   -  (BRIDGE TABLE)
+DROP TABLE IF EXISTS goals_tags;
+CREATE TABLE goals_tags (
+goal_id     INT     NOT NULL,
+tag_id      INT     NOT NULL,
+
+PRIMARY KEY (goal_id, tag_id),
+
+INDEX idx_goals_tags_goal (goal_id),
+INDEX idx_goals_tags_tag  (tag_id),
+
+FOREIGN KEY (goal_id) REFERENCES goals(id) 
+ ON DELETE CASCADE 
+ ON UPDATE CASCADE,
+
+FOREIGN KEY (tag_id)  REFERENCES tags(id)  
+ ON DELETE CASCADE 
+ ON UPDATE CASCADE
 );
 
 
