@@ -3,6 +3,8 @@ from backend.db_connection import db
 from mysql.connector import Error
 from flask import current_app
 
+
+
 # Create a Blueprint for NGO routes
 goals = Blueprint("goals", __name__)
 
@@ -27,7 +29,7 @@ def get_all_goals():
 
         current_app.logger.debug(f'Query parameters - title: {title}, schedule: {schedule}, notes: {notes}')
         query = "SELECT id, title, notes, schedule FROM goals g WHERE g.status = 'ACTIVE' LIMIT 3;"
-        
+        print(query)
 
         current_app.logger.debug(f'Executing query: {query}')
         cursor.execute(query)

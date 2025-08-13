@@ -14,49 +14,15 @@ st.write("What are we going to get done today?")
 
 API_URL = "http://web-api:4000/goals"
 
-def fetch_goals():
-    """Fetch goals from the API with error handling"""
-    try:
-        response = requests.get(API_URL, timeout=10)
-        if response.status_code == 200:
-            return response.json()
-        else:
-            st.error(f"API returned status code: {response.status_code}")
-            return None
-    except requests.exceptions.ConnectionError:
-        st.error("Could not connect to the API server. Please ensure it's running on http://web-api:4000")
-        return None
-    except requests.exceptions.Timeout:
-        st.error("Request timed out. The API server may be slow to respond.")
-        return None
-    except requests.exceptions.RequestException as e:
-        st.error(f"Error connecting to the API: {str(e)}")
-        return None
+data = {} 
+try:
+  data = requests.get('http://web-api:4000/goals').json()
+except:
+  st.write("**Important**: Could not connect to sample api, so using dummy data.")
+  data = {"a":{"b": "123", "c": "hello"}, "z": {"b": "456", "c": "goodbye"}}
+st.write(data)
 
-# Fetch and display goals
-goals_data = fetch_goals()
 
-if goals_data:
-    st.success("Successfully connected to API!")
-    
-    if goals_data:
-        st.write("## Your Active Goals")
-        
-        for goal in goals_data:
-            with st.expander(f"📋 {goal.get('title', 'Untitled Goal')}"):
-                st.write(f"**Schedule:** {goal.get('schedule', 'No schedule set')}")
-                st.write(f"**Notes:** {goal.get('notes', 'No notes available')}")
-                
-                # Add action buttons
-                col1, col2 = st.columns(2)
-                with col1:
-                    if st.button(f"Mark Complete", key=f"complete_{goal.get('id')}"):
-                        st.success(f"Goal '{goal.get('title')}' marked as complete!")
-                with col2:
-                    if st.button(f"Edit", key=f"edit_{goal.get('id')}"):
-                        st.info("Edit functionality would open a form here")
-    else:
-        st.info("No active goals found. Time to create some!")
 
 
 # try:
