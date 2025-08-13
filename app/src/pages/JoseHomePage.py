@@ -109,7 +109,6 @@ with col2:
     
     # System Charts Section
     st.write("### 📊 SYSTEM OVERVIEW")
-<<<<<<< HEAD
     userstats = requests.get('http://web-api:4000/users/appstats').json()
     userstats = [list(item.values()) for item in userstats]
 
@@ -123,12 +122,6 @@ with col2:
         # User count
         df = df.sort_values('date').reset_index(drop=True)
         df['user_count'] = range(1, len(df) + 1)
-=======
-    
-    #userstats = requests.get('http://web-api:4000/users').json()
-    #userstats = [list(item.values()) for item in userstats]
-    #st.write(userstats)
->>>>>>> 97aa18207d8379ffcae2a184b4e523d02feca08e
     
         return df
     df = make_userstats(userstats)
