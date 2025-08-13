@@ -36,5 +36,5 @@ DUE FRI AT 5pm
         - 1.5
     - [ ] Avery Feature 3
 
-optional : [ ] Change attribute types where possible to enumberation (is this helpful?)
+optional : [x] Change attribute types where possible to enumberation (is this helpful?)
     - I (Fabrizio) could do this as it would make the attribute make more sense, but not sure if its useful now?
