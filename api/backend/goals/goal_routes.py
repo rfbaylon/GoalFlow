@@ -142,3 +142,20 @@ def add_goal():
     except Error as e:
         return jsonify({"error": str(e)}), 500
 
+# Abandoned as we dont have the data to back this upn :(
+# @goals.route("/active/employees", methods=["GET"])
+# def get_active_goals():
+#     try:
+#         cursor = db.get_db().cursor()
+#         query = """SELECT g.id, g.title, g.notes, g.schedule, u.id, u.
+#         FROM goals g JOIN users u ON g.userId = u.id 
+#         WHERE g.status = 'ACTIVE' AND
+#         GROUPBY u.id;"""
+#         cursor.execute(query)
+#         goals_data = cursor.fetchall()
+#         cursor.close()
+#         return jsonify(goals_data), 200
+
+#     except Error as e:
+#         current_app.logger.error(f'Database error in get_active_goals: {str(e)}')
+#         return jsonify({"error": str(e)}), 500

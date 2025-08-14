@@ -16,60 +16,62 @@ st.title("🛠️ Whats up, Jack?")
 
 # Create main layout: left column (system issues) and right column (quick actions + charts)
 col1, col2 = st.columns([2, 1])
-
-
-
 with col1:
     st.write("### Company Goals")
 
     goals = requests.get('http://web-api:4000/goals/active').json()
-    with col1:
-        goals = requests.get('http://web-api:4000/goals/active').json()
 
-        goals = [
-            [
-                item.get("id"),      # 0 - goal_id
-                item.get("title"),   # 1 - title
-                item.get("notes"),   # 2 - notes/description
-                item.get("schedule") # 3 - schedule
-            ]
-            for item in goals
+    # Use explicit mapping instead of list(item.values())
+    goals = [
+        [
+            item.get("id"),      # 0 - goal_id
+            item.get("title"),   # 1 - title
+            item.get("notes"),   # 2 - notes/description
+            item.get("schedule") # 3 - schedule
         ]
+        for item in goals
+    ]
 
-        st.write("---")
-        goal_col1, goal_col2 = st.columns([3, 1])
-        with goal_col1: st.write("**Goal**")
-        with goal_col2: st.write("**Completion**")
-        st.write("---")
+    st.write("---")
+    goal_col1, goal_col2 = st.columns([3, 1])
+    with goal_col1: st.write("**Goal**")
+    with goal_col2: st.write("**Completion**")
+    st.write("---")
 
-        for goal in goals:
-            goal_id, title, notes, schedule = goal
+    for goal in goals:
+        goal_id, title, notes, schedule = goal
 
-            with st.container():
-                goal_col1, goal_col2 = st.columns([3, 1])
+        with st.container():
+            goal_col1, goal_col2 = st.columns([3, 1])
 
-                with goal_col1:
-                    st.write(f":red[**{title}**]")   # Title on top
-                    if notes:
-                        st.write(notes)              # Notes/desc underneath
+            with goal_col1:
+                st.write(f":red[**{title}**]")   # Title on top
+                if notes:
+                    st.write(notes)              # Notes/desc underneath
 
-                with goal_col2:
-                    # Use unique keys per goal
-                    if st.button("Mark Complete", key=f"complete_{goal_id}"):
-                        try:
-                            response = requests.put(f'http://web-api:4000/goals/{goal_id}/complete')
-                            if response.status_code == 200:
-                                st.success("Goal marked as completed!")
-                                st.rerun()  # Refresh page
-                            else:
-                                st.error(f"Error: {response.status_code}")
-                        except Exception as e:
-                            st.error(f"Error updating goal: {str(e)}")
+            with goal_col2:
+                # Use unique keys per goal
+                if st.button("Mark Complete", key=f"complete_{goal_id}"):
+                    try:
+                        response = requests.put(f'http://web-api:4000/goals/goals/{goal_id}/complete')
+                        if response.status_code == 200:
+                            st.success("Goal marked as completed!")
+                            st.rerun()  # Refresh page
+                        else:
+                            st.error(f"Error: {response.status_code}")
+                    except Exception as e:
+                        st.error(f"Error updating goal: {str(e)}")
 
-                st.write("---")
+            st.write("---")
 
 
 
+
+# Fetch all goals
+all_goals = requests.get('http://web-api:4000/goals/active').json()
+
+# Filter ON ICE goals
+on_ice_goals = [goal for goal in all_goals if goal.get('status') == 'ON ICE']
 
 with col2:
     st.write('### Subgoals')
