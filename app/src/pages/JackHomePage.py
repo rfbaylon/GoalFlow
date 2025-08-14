@@ -17,53 +17,74 @@ def safe_hex_color(c: str, default="#999999") -> str:
         return c.strip()
     return default
 
+def normalize_tag_row(row):
+    """Make backend row (dict or tuple/list) into {'id','name','color'}."""
+    if isinstance(row, dict):
+        return {"id": row.get("id") or row.get("tag_id"),
+                "name": row.get("name"),
+                "color": row.get("color")}
+    if isinstance(row, (list, tuple)):
+        id_, name, color = (list(row) + [None, None, None])[:3]
+        return {"id": id_, "name": name, "color": color}
+    return {"id": None, "name": "Unnamed", "color": "#999999"}
+
 # ---------------------- Page Init ----------------------
 st.set_page_config(layout='wide')
 st.session_state['authenticated'] = False
 SideBarLinks(show_home=True)
 
+if "my_tags" not in st.session_state:
+    st.session_state["my_tags"] = []  # each: {"id": int|None, "name": str, "color": "#hex"}
+
 # Header
 st.title("💼 Whats up, Jack?")
 
 # ---------------------- Main Layout ----------------------
-col1, col2 = st.columns([2, 1])
+col1, col2 = st.columns([3, 1])
 
 with col1:
     # GOALS
     goals = requests.get('http://web-api:4000/goals/active').json()
     goals = [
-        [
-            item.get("id"),       # 0 - goal_id
-            item.get("title"),    # 1 - title
-            item.get("notes"),    # 2 - notes/description
-            item.get("schedule"), # 3 - schedule
-        ]
+        [item.get("id"), item.get("title"), item.get("notes"), item.get("schedule")]
         for item in goals
     ]
 
     # SUBGOALS
     subgoals = requests.get('http://web-api:4000/goals/subgoals').json()
     subgoals = [
-        [
-            item.get("goalsId"),  # 0 - parent goal ID
-            item.get("title"),    # 1 - subgoal title
-        ]
+        [item.get("goalsId"), item.get("title")]
         for item in subgoals
     ]
 
     # HEADER
-    goal_col1, goal_col2 = st.columns([3, 1])
+    goal_col1, goal_col2, goal_col3 = st.columns([3, 1, 1.5])
     with goal_col1:
-        st.subheader("**Goal**")
-    with goal_col2:
-        st.subheader("**Completion**")
-    st.write("---")
+        st.subheader("**Goal**", divider=True)
 
-    for goal in goals:
-        goal_id, title, notes, schedule = goal
+    with goal_col2:
+        st.subheader("**Tags**", divider=True)
+
+    for goal_id, title, notes, schedule in goals:
+        # Fetch tags for a goal (GOAL route)
+        try:
+            resp = requests.get(f"http://web-api:4000/tags/goals/{goal_id}/tags", timeout=5)
+            tags_raw = resp.json() if resp.headers.get("content-type","").startswith("application/json") else []
+        except Exception as e:
+            tags_raw = []
+            st.warning(f"Failed to load tags for goal {goal_id}: {e}")
+
+        # Normalize for display
+        tags_for_display = []
+        for t in tags_raw:
+            nt = normalize_tag_row(t)
+            tags_for_display.append({
+                "name": nt.get("name") or "Unnamed",
+                "color": safe_hex_color(nt.get("color"), "#999999")
+            })
 
         with st.container():
-            g1, g2 = st.columns([3, 1])
+            g1, g2, g3 = st.columns([3, 1.5, 1])
 
             with g1:
                 st.write(f":red[**{title}**]")
@@ -74,9 +95,19 @@ with col1:
                         st.write(f"- {sub[1]}")
 
             with g2:
+                if tags_for_display:
+                    tag_htmls = [
+                        f"<span style='background:{t['color']}; padding:2px 6px; border-radius:4px; margin-right:4px; color:white;'>{t['name']}</span>"
+                        for t in tags_for_display
+                    ]
+                    st.markdown("".join(tag_htmls), unsafe_allow_html=True)
+                else:
+                    st.write("—")  # placeholder if no tags
+
+            with g3:
                 if st.button("Mark Complete", key=f"complete_{goal_id}"):
                     try:
-                        response = requests.put(f'http://web-api:4000/goals/goals/{goal_id}/complete')
+                        response = requests.put(f'http://web-api:4000/goals/{goal_id}/complete', timeout=5)
                         if response.status_code == 200:
                             st.success("Goal marked as completed!")
                             st.rerun()
@@ -88,13 +119,12 @@ with col1:
             st.write("---")
 
 with col2:
-    st.title("📊 Goal Status Overview")
+    st.header("📊 Goal Status Overview")
 
     # Fetch goals for charts
     goals_all = requests.get('http://web-api:4000/goals/all').json()
     df = pd.DataFrame(goals_all)
 
-    # Ensure columns exist
     if 'status' not in df.columns:
         df['status'] = 'ACTIVE'
 
@@ -124,164 +154,129 @@ with col2:
 
     df_scatter = pd.DataFrame(goals_all)
     df_scatter['schedule'] = pd.to_datetime(df_scatter.get('schedule', pd.NaT))
-    df_scatter['priority'] = df_scatter.get('priority', 'low')
+    df_scatter['priority'] = df_scatter.get('priority', 'high')
     df_scatter['status'] = df_scatter.get('status', 'PLANNED')
     df_scatter['title'] = df_scatter.get('title', 'Untitled')
-
-    priority_map = {'critical': 4, 'high': 3, 'medium': 2, 'low': 1}
-    df_scatter['priority_num'] = df_scatter['priority'].map(priority_map)
 
     fig2 = px.scatter(
         df_scatter,
         x='schedule',
-        y='priority_num',
-        color='status',
+        y='priority',
         hover_data=['title', 'notes', 'priority'],
-        labels={'priority_num': 'Priority', 'schedule': 'Deadline'},
-        title='Goals vs Deadline by Priority and Status',
+        labels={'priority': 'Priority', 'schedule': 'Deadline'},
+        title='High Priority Goals',
         height=500
     )
+
+    fig2.update_yaxes(showgrid=True, gridcolor='lightgray')
     st.plotly_chart(fig2, use_container_width=True)
 
-# ---------------------- Tags API ----------------------
-def fetch_tags(name: str | None = None, color: str | None = None):
-    params = {}
-    if name:
-        params["name"] = name.strip()
-    if color:
-        params["color"] = color.strip()
-    try:
-        r = requests.get("http://web-api:4000/tags/get_tag", params=params, timeout=5)
-        if r.ok:
-            return r.json()
-        st.error(f"Failed to load tags: {r.status_code}")
-    except Exception as e:
-        st.error(f"Error contacting tags API: {e}")
-    return []
 
+# ---------------------- Tags API (TAG routes only) ----------------------
 def create_tag_api(name: str, color: str):
-    try:
-        payload = {"name": (name or "").strip(), "color": (color or "").strip()}
-        r = requests.post("http://web-api:4000/tags/create_tag", json=payload, timeout=5)
-        if 200 <= r.status_code < 300:
-            if r.headers.get("content-type", "").startswith("application/json"):
-                return True, r.json()
-            return True, r.text
-        return False, f"{r.status_code} {r.text[:200]}"
-    except Exception as e:
-        return False, str(e)
-
-def rename_tag_api(tag_id: int, new_name: str | None = None, new_color: str | None = None):
-    body = {}
-    if new_name:
-        body["name"] = new_name.strip()
-    if new_color:
-        body["color"] = new_color.strip()
-    if not body:
-        return False, "No fields to update"
-    try:
-        r = requests.put(f"http://web-api:4000/tags/rename_tag/{tag_id}", json=body, timeout=5)
-        if 200 <= r.status_code < 300:
-            return True, r.json() if r.headers.get("content-type", "").startswith("application/json") else r.text
-        return False, f"{r.status_code} {r.text[:200]}"
-    except Exception as e:
-        return False, str(e)
+    payload = {"name": (name or "").strip(), "color": (color or "").strip()}
+    return requests.post("http://web-api:4000/tags/create_tag", json=payload, timeout=5)
 
 def delete_tag_api(tag_id: int):
-    try:
-        r = requests.delete(f"http://web-api:4000/tags/delete_tag/{tag_id}", timeout=5)
-        if r.status_code in (200, 202, 204):
-            return True, r.text
-        return False, f"{r.status_code} {r.text[:200]}"
-    except Exception as e:
-        return False, str(e)
+    return requests.delete(f"http://web-api:4000/tags/delete_tag/{int(tag_id)}", timeout=5)
 
-# ---------------------- Tags UI ----------------------
+
+# ---------------------- Tags UI (Create + Delete by ID) ----------------------
 st.write("### 🏷️ Tags")
 
-with st.expander("Create a tag"):
+with st.expander("Create a tag", expanded=True):
     c1, c2, c3 = st.columns([2, 1, 1])
     with c1:
-        new_tag_name = st.text_input("Name", key="tag_new_name")
+        new_tag_name = st.text_input("Name (optional)", key="tag_new_name")
     with c2:
-        new_tag_color = st.color_picker("Color", value="#ff9900", key="tag_new_color")
+        new_tag_color = st.color_picker("Color (required)", value="#ff9900", key="tag_new_color")
     with c3:
         if st.button("Create", key="btn_create_tag", use_container_width=True, type="primary"):
-            if not new_tag_color:
-                st.error("Color is required.")
+            if not new_tag_color or not HEX_PATTERN.match(new_tag_color.strip()):
+                st.error("Valid hex color is required.")
             else:
-                ok, msg = create_tag_api(new_tag_name or "", new_tag_color)
-                if ok:
-                    st.success("Tag created.")
-                    st.rerun()
-                else:
-                    st.error(f"Create failed: {msg}")
+                try:
+                    r = create_tag_api(new_tag_name or "", new_tag_color)
+                    if 200 <= r.status_code < 300:
+                        tag_id = None
+                        try:
+                            if r.headers.get("content-type","").startswith("application/json"):
+                                data = r.json()
+                                tag_id = data.get("id") or data.get("tag_id")
+                        except Exception:
+                            pass
 
-# Filters
-f1, f2, f3 = st.columns([2, 2, 1])
-with f1:
-    filter_name = st.text_input("Filter by name", key="tag_filter_name")
-with f2:
-    filter_color = st.text_input("Filter by color (e.g. #ff0000)", key="tag_filter_color")
-with f3:
-    do_search = st.button("Search", key="btn_search_tags", use_container_width=True)
+                        # Add to session so it shows immediately below
+                        st.session_state["my_tags"].append({
+                            "id": int(tag_id) if tag_id is not None else None,
+                            "name": new_tag_name or "",
+                            "color": new_tag_color
+                        })
 
-# Load & list
-tags_data = fetch_tags(filter_name if do_search else None, filter_color if do_search else None)
-st.caption(f"Results: {len(tags_data)} tag(s)")
+                        st.success("Tag created.")
+                        st.rerun()
+                    else:
+                        st.error(f"Create failed: {r.status_code} {r.text[:200]}")
+                except Exception as e:
+                    st.error(f"Create failed: {e}")
 
-for idx, t in enumerate(tags_data):
-    raw_tid = t.get("id") or t.get("tag_id") or ""
-    # Ensure uniqueness even if id is missing/duplicated
-    safe_tid = str(raw_tid).strip() or f"idx{idx}"
-    uniq = f"{safe_tid}_{idx}"
+with st.expander("Delete a tag by ID", expanded=False):
+    d1, d2 = st.columns([2, 1])
+    with d1:
+        del_id = st.text_input("Tag ID", key="quick_del_id", placeholder="e.g., 42")
+    with d2:
+        if st.button("Delete", key="quick_del_btn", use_container_width=True):
+            if not del_id.strip().isdigit():
+                st.error("Tag ID must be a number.")
+            else:
+                try:
+                    r = delete_tag_api(int(del_id.strip()))
+                    if r.status_code in (200, 202, 204):
+                        # Remove from session list if present
+                        tag_id_int = int(del_id.strip())
+                        st.session_state["my_tags"] = [
+                            x for x in st.session_state["my_tags"]
+                            if x.get("id") != tag_id_int
+                        ]
+                        st.success("Tag deleted.")
+                        st.rerun()
+                    else:
+                        st.error(f"Delete failed: {r.status_code} {r.text[:200]}")
+                except Exception as e:
+                    st.error(f"Delete failed: {e}")
 
-    tname = t.get("name") or ""
-    tcolor = safe_hex_color(t.get("color"), "#999999")
-
-    with st.container():
-        r1, r2, r3, r4 = st.columns([2, 1, 2, 1])
-
-        with r1:
-            st.write(f"**{tname}**")
-            st.markdown(
-                f"<div style='width:18px;height:18px;border-radius:4px;background:{tcolor};border:1px solid #ccc;'></div>",
-                unsafe_allow_html=True
-            )
-
-        with r2:
-            new_name = st.text_input(
-                "Rename",
-                value=tname,
-                key=f"rename_name_{uniq}",
-                label_visibility="collapsed"
-            )
-
-        with r3:
-            new_color = st.color_picker(
-                "Color",
-                value=tcolor,
-                key=f"rename_color_{uniq}"
-            )
-
-        with r4:
-            if st.button("Save", key=f"btn_save_tag_{uniq}", use_container_width=True):
-                # Try to use numeric id if present; otherwise fall back to raw_tid
-                target_id = t.get("id") or t.get("tag_id")
-                ok, msg = rename_tag_api(target_id, new_name, new_color)
-                if ok:
-                    st.success("Tag updated.")
-                    st.rerun()
-                else:
-                    st.error(f"Update failed: {msg}")
-
-            if st.button("Delete", key=f"btn_delete_tag_{uniq}", use_container_width=True):
-                target_id = t.get("id") or t.get("tag_id")
-                ok, msg = delete_tag_api(target_id)
-                if ok:
-                    st.success("Tag deleted.")
-                    st.rerun()
-                else:
-                    st.error(f"Delete failed: {msg}")
-
-        st.write("---")
+# ---------------------- Session-created tags preview ----------------------
+if st.session_state["my_tags"]:
+    st.caption(f"Session tags: {len(st.session_state['my_tags'])}")
+    for idx, t in enumerate(st.session_state["my_tags"]):
+        raw_tid = t.get("id")
+        uniq = f"{raw_tid}_{idx}"
+        tname = t.get("name") or ""
+        tcolor = safe_hex_color(t.get("color"), "#999999")
+        with st.container():
+            r1, r2 = st.columns([5, 1])
+            with r1:
+                st.write(f"**{tname}**  ·  `{raw_tid}`")
+                st.markdown(
+                    f"<div style='width:18px;height:18px;border-radius:4px;background:{tcolor};border:1px solid #ccc;display:inline-block;margin-top:4px;'></div>",
+                    unsafe_allow_html=True
+                )
+            with r2:
+                if st.button("Delete", key=f"btn_delete_tag_{uniq}", use_container_width=True):
+                    try:
+                        if raw_tid is None:
+                            st.error("Cannot delete: missing server id.")
+                        else:
+                            r = delete_tag_api(int(raw_tid))
+                            if r.status_code in (200, 202, 204):
+                                st.session_state["my_tags"] = [
+                                    x for x in st.session_state["my_tags"]
+                                    if x.get("id") != raw_tid
+                                ]
+                                st.success("Tag deleted.")
+                                st.rerun()
+                            else:
+                                st.error(f"Delete failed: {r.status_code} {r.text[:200]}")
+                    except Exception as e:
+                        st.error(f"Delete failed: {e}")
+            st.write("---")
