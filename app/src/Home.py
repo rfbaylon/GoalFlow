@@ -14,65 +14,10 @@ st.markdown("# 🎯 Welcome to GoalFlow!")
 st.markdown("### *What are we going to get done today?*")
 st.write("")
 
-# Main layout
-left, right = st.columns([2, 1])
+# Center the user selection
+col1, col2, col3 = st.columns([1, 2, 1])
 
-with left:
-    st.markdown("## 📋 Your Goal Dashboard")
-    st.write("")
-    
-    # Sample goals display - simple and clean
-    with st.container():
-        st.markdown("**🎯 Active Goals**")
-        
-        # Goal 1
-        goal1_col1, goal1_col2 = st.columns([3, 1])
-        with goal1_col1:
-            st.write("📊 **Increase Revenue by 5%**")
-            st.write("*Due: March 15, 2025*")
-            st.progress(0.7)
-        with goal1_col2:
-            st.write("70% Complete")
-        
-        st.write("---")
-        
-        # Goal 2
-        goal2_col1, goal2_col2 = st.columns([3, 1])
-        with goal2_col1:
-            st.write("🎓 **Complete Research Paper**")
-            st.write("*Due: April 20, 2025*")
-            st.progress(0.4)
-        with goal2_col2:
-            st.write("40% Complete")
-        
-        st.write("---")
-        
-        # Goal 3
-        goal3_col1, goal3_col2 = st.columns([3, 1])
-        with goal3_col1:
-            st.write("💻 **App Feature Development**")
-            st.write("*Due: May 10, 2025*")
-            st.progress(0.8)
-        with goal3_col2:
-            st.write("80% Complete")
-    
-    st.write("")
-    
-    # Today's tasks
-    st.markdown("**✅ Today's Tasks**")
-    col_task1, col_task2 = st.columns([1, 4])
-    
-    with col_task1:
-        task1 = st.checkbox("", key="task1")
-        task2 = st.checkbox("", key="task2")
-        task3 = st.checkbox("", key="task3")
-    
-    with col_task2:
-        st.write("Review quarterly financial reports")
-        st.write("Meet with research advisor")
-        st.write("Fix critical bug in authentication")
-
-with right:
+with col2:
     st.markdown("## 👥 User Profiles")
     st.write("*Choose your role to get started*")
     st.write("")
