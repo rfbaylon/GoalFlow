@@ -55,39 +55,4 @@ with col2:
     
     st.write("---")
     
-    # Quick actions
-    st.markdown("**⚡ Quick Actions**")
-    
-    if st.button('➕ Add New Goal', 
-                 type='secondary', 
-                 use_container_width=True):
-        st.switch_page('pages/Add_New_Project.py')
-    
-    if st.button('📊 View Analytics', 
-                 type='secondary', 
-                 use_container_width=True):
-        st.info("Analytics page coming soon!")
-    
-    # Stats summary
-    st.write("---")
-    st.markdown("**📈 Quick Stats**")
-    
-    metric_col1, metric_col2 = st.columns(2)
-    with metric_col1:
-        st.metric("Active Goals", "3", "1 new")
-    with metric_col2:
-        st.metric("Completed", "12", "2 this week")
-
-# Bottom section
-st.write("")
-st.write("---")
-st.markdown("### 💡 **Getting Started**")
-st.write("Choose your profile above to access personalized goals and tasks, or add a new goal to get started!")
-
-# Optional: Recent activity
-with st.expander("📝 Recent Activity"):
-    st.write("• Goal 'Increase Revenue by 5%' updated to 70% complete")
-    st.write("• New task 'Review financial reports' added")
-    st.write("• Research paper milestone reached")
-    st.write("• Bug fix deployed successfully")
-        
+  
