@@ -15,21 +15,13 @@ DUE FRI AT 5pm
 
 PLEASE LABEL WHERE YOUR PUT/POST/DELETE ROUTES ARE
 
-- [x] PUT 3.6
-- [ ] PUT
-- [ ] POST
-- [ ] POST
-- [ ] DELETE
-- [ ] DELETE
-
-
-- [x] Jose Landing Page
+- [ ] Jose Landing Page
     - [x] Jose Feature 1
         - 3.4 Completed by Ryan
     - [x] Jose Feature 2
         - 3.1 Completed by Ryan :D
-    - [x] Jose Feature 3
-        - 3.6 finished by ryan! **PUT**
+    - [ ] Jose Feature 3
+        - 3.6 working on this!
 
 - [ ] Jack Landing Page
     - [ ] Jack Feature 1
@@ -63,33 +55,29 @@ optional : [x] Change attribute types where possible to enumberation (is this he
 # USER STORIES
 
 ## 1 (Avery)
-As a freelancer, I need long-term projects to break into automatic phases and milestones so I can stay on track without manually mapping everything out.
-As a freelancer, I want short-term tasks to pull automatically by date from my backlog when I finish something, so I’m never stuck wondering what to do next.
-As a freelancer, I want to log daily creative habits, so I can stay consistent even when client work is busy.
-As a freelancer, I want customizable timelines (daily, weekly, quarterly) so I can balance my personal work and client projects.
-As a freelancer, I need a visual dashboard showing my progress and deadlines so I can see everything at a glance.
-As a freelancer, I need space for smaller, ongoing creative work so I can stay inspired without derailing my main priorities.
+As a freelancer, I want to have an archive of the projects I have completed.
+
+As a freelancer, I want to delete projects I am no longer interested in.
+
+As a freelancer, I want to log daily creative habits
 
 ## 2 (Alan)
-As a researcher, I need to be able to differentiate the kinds of research projects I work on (statistics, AI) with tags so I can decide which project of a category I want to pursue (e.g. “I want to work on a project -- which project should I work on?” or “project for home, work”)
 As a professor, I want to be able to assign different priorities to projects.
-As a professor, I want to update different slots for different projects and tasks I am working on. 
+
 As a professor, I want my completed projects to be removed from my planner (but kept in the database) so I can look back.
-As a researcher, I want to have control over the smaller daily tasks, creating customizable deadlines for each.
+
 As a researcher, I want to be able to add projects to a database of potential projects.
 
 ## 3 (Jose)
-As a system admin, I need to be able to see bugs that people report to me, so there should be a dashboard for people to report.
-As a system admin, I should be able to help my users when they email me. I'll need a list of all users and their relevant data to pull from
-As a system admin, I should know which users have a paid plan, so I can prioritize them on customer support.
-As a system admin, I should be able to see the amount of people who have downloaded or used my app so I can track its popularity over time.
-As a system admin, there should be a community forum where I can answer questions and hear community feedback which aren't necessarily bugs.
-As a system admin, I need to mark bugs as resolved, and have them automatically disappear
+As a system admin, I need to be able to see bugs that people report to me, so there should be a dashboard for people to report. (not complete)
+
+As a system admin, there should be a community forum where I can answer questions and hear community feedback which aren't necessarily bugs. 
+
+As a system admin, I need to mark bugs as resolved.
 
 ## 4 (Jack)
-As a financial analyst, I need to be able to see the aggregated amount of tasks completed by employees to check the progress of my company’s goals
 As a financial analyst, I need to set subgoals for my employees with checkboxes of whether the subgoal was met or not for the long term goal to succeed on time.
-As a manager, I need to see the total goals completed.
-As a financial analyst, I need to organize different company goals with tags and see what kind of goals the company has.
-As a financial analyst, I want to archive projects from the project slots, so I can either give up on a goal or project.
-As a financial analyst, I want to give my employees deadlines.
+
+As a financial analyst, I want to add new company goals. 
+
+As a financial analyst, I want to mark company goals as completed. (use jose template)
