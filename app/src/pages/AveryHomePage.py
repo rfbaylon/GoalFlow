@@ -106,7 +106,7 @@ with col1:
             notes = (g.get("notes") or "").strip()
             sched = _parse_schedule(g.get("schedule"))
             due_str = _due_label(sched)
-
+            
             with st.container():
                 c1, c2, c3 = st.columns([2, 1, 1])
                 with c1:
@@ -120,38 +120,49 @@ with col1:
                         if gid is None:
                             st.error("Archive failed: missing goal id")
                         else:
-                            url1 = f"{API_URL}/goals/{gid}/complete"
-                            code, body = try_put(url1)
-                            if code == 200:
-                                st.success("Archived.")
+                            response = requests.put(f'http://web-api:4000/goals/{gid}/complete')
+                            if response.status_code == 200:
+                                st.success("Archived.") 
                                 st.rerun()
-                            else:
-                                url2 = f"{API_URL}/support/bugs/{gid}/complete"
-                                code2, body2 = try_put(url2)
-                                if code2 == 200:
-                                    st.success("Archived (temporary mapping via support/bugs).")
-                                    st.rerun()
-                                else:
-                                    fallback_id = get_first_bug_id()
-                                    if fallback_id is not None:
-                                        url3 = f"{API_URL}/support/bugs/{fallback_id}/complete"
-                                        code3, body3 = try_put(url3)
-                                        if code3 == 200:
-                                            st.warning(
-                                                "Goals completed, but archived via fallback bug id."
-                                            )
-                                            st.rerun()
-                                        else:
-                                            st.error("Archive failed on all routes.")
-                                            with st.expander("Details"):
-                                                st.write(f"1) {url1} → {code}"); st.code((body or "")[:500])
-                                                st.write(f"2) {url2} → {code2}"); st.code((body2 or "")[:500])
-                                                st.write(f"3) {url3} → {code3}"); st.code((body3 or "")[:500])
-                                    else:
-                                        st.error("Archive failed. No fallback bug id.")
-                                        with st.expander("Details"):
-                                            st.write(f"1) {url1} → {code}"); st.code((body or "")[:500])
-                                            st.write(f"2) {url2} → {code2}"); st.code((body2 or "")[:500])
+                            else: st.write(response.status_code)
+
+                
+
+                        # if st.button("Mark Complete", key=f"complete_{bug[2]}"):
+                        #     try:
+                        #     response = requests.put(f'http://web-api:4000/support/bugs/{bug[2]}/complete')
+                        #     if response.status_code == 200:
+                        #         st.success("Bug marked as completed!")
+                        #         st.rerun()  # Refresh the page to show updated status
+                        #     else:
+                        #         st.error(f"Error: {response.status_code}")
+                                # else:
+                                #     url2 = f"{API_URL}/support/goals/{gid}/complete"
+                                #     code2, body2 = try_put(url2)
+                                #     if code2 == 200:
+                                #         st.success("Archived (temporary mapping via support/bugs).")
+                                #         st.rerun()
+                                #     else:
+                                #         fallback_id = get_first_bug_id()
+                                #         if fallback_id is not None:
+                                #             url3 = f"{API_URL}/support/bugs/{fallback_id}/complete"
+                                #             code3, body3 = try_put(url3)
+                                #             if code3 == 200:
+                                #                 st.warning(
+                                #                     "Goals completed, but archived via fallback bug id."
+                                #                 )
+                                #                 st.rerun()
+                                #             else:
+                                #                 st.error("Archive failed on all routes.")
+                                #                 with st.expander("Details"):
+                                #                     st.write(f"1) {url1} → {code}"); st.code((body or "")[:500])
+                                #                     st.write(f"2) {url2} → {code2}"); st.code((body2 or "")[:500])
+                                #                     st.write(f"3) {url3} → {code3}"); st.code((body3 or "")[:500])
+                                #         else:
+                                #             st.error("Archive failed. No fallback bug id.")
+                                #             with st.expander("Details"):
+                                #                 st.write(f"1) {url1} → {code}"); st.code((body or "")[:500])
+                                #                 st.write(f"2) {url2} → {code2}"); st.code((body2 or "")[:500])
 
             st.write("---")
 
