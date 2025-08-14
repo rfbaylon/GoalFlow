@@ -15,13 +15,21 @@ DUE FRI AT 5pm
 
 PLEASE LABEL WHERE YOUR PUT/POST/DELETE ROUTES ARE
 
-- [ ] Jose Landing Page
+- [x] PUT 3.6
+- [ ] PUT
+- [ ] POST
+- [ ] POST
+- [ ] DELETE
+- [ ] DELETE
+
+
+- [x] Jose Landing Page
     - [x] Jose Feature 1
         - 3.4 Completed by Ryan
     - [x] Jose Feature 2
         - 3.1 Completed by Ryan :D
-    - [ ] Jose Feature 3
-        - 3.6 working on this!
+    - [x] Jose Feature 3
+        - 3.6 finished by ryan! **PUT**
 
 - [ ] Jack Landing Page
     - [ ] Jack Feature 1
@@ -76,7 +84,7 @@ As a system admin, I should be able to help my users when they email me. I'll ne
 As a system admin, I should know which users have a paid plan, so I can prioritize them on customer support.
 As a system admin, I should be able to see the amount of people who have downloaded or used my app so I can track its popularity over time.
 As a system admin, there should be a community forum where I can answer questions and hear community feedback which aren't necessarily bugs.
-As a system admin, I need to mark bugs as resolved
+As a system admin, I need to mark bugs as resolved, and have them automatically disappear
 
 ## 4 (Jack)
 As a financial analyst, I need to be able to see the aggregated amount of tasks completed by employees to check the progress of my company’s goals

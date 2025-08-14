@@ -22,7 +22,7 @@ col1, col2 = st.columns([2, 1])
 
 
 with col1:
-    st.write("### 🚨 SYSTEM PRIORITIES")
+    st.write("### Uncompleted Bugs")
 
     bugs = requests.get('http://web-api:4000/support/bugs').json()
     bugs = [list(item.values()) for item in bugs]
@@ -33,8 +33,8 @@ with col1:
     #4 - desc
 
     st.write("---")
-    bug_col1, bug_col2, bug_col3, bug_col4 = st.columns([2, 1, 1, 1])
-    with bug_col1: st.write("**Uncompleted Bugs**")
+    bug_col1, bug_col2, bug_col3 = st.columns([2, 1, 1])
+    with bug_col1: st.write("**Bug**")
     with bug_col2: st.write("**Priority**")
     with bug_col3: st.write("**Completion**")
     st.write("---")
@@ -66,21 +66,9 @@ with col1:
                             st.error(f"Error updating bug: {str(e)}")
             st.write("---")
 
-            
-    
+        
 
 with col2:
-    # st.write("### ⚡ ADMIN ACTIONS")
-    
-    # # Action buttons in a 2x2 grid like the wireframe
-    # action_col1, action_col2 = st.columns(2)
-    
-    # with action_col1:
-    #     if st.button("🐛 Bug Reports", use_container_width=True):
-    #         st.switch_page('pages/01_Bug_Reports.py')
-    
-    
-    # st.write("---")
     
     # System Charts Section
     st.write("### 📊 App Statistics")
