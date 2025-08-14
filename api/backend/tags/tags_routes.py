@@ -151,4 +151,14 @@ def get_tag(tag_id):
     except Error as e:
         return jsonify({"error": str(e)}), 500
 
+@tags.route("/goals/<int:goal_id>/tags", methods=["GET"])
+def get_goal_tags(goal_id):
+    cursor = db.get_db().cursor()
+    cursor.execute("""
+        SELECT t.id, t.name, t.color
+        FROM tags t
+        JOIN goals_tags gt ON gt.tag_id = t.id
+        WHERE gt.goal_id = %s
+    """, (goal_id,))
+    return jsonify(cursor.fetchall())
 

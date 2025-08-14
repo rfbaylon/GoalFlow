@@ -39,7 +39,8 @@ PLEASE LABEL WHERE YOUR PUT/POST/DELETE ROUTES ARE
 - [ ] Jack Landing Page
     - [x] Jack Feature 1
         - Added subgoals Completed by Ryan
-    - [ ] Jack Feature 2
+    - [X] Jack Feature 2
+        -Added graphs done by Jaden
     - [ ] Jack Feature 3
 
 - [ ] Alan Landing Page

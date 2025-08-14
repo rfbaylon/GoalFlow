@@ -23,10 +23,10 @@ st.session_state['authenticated'] = False
 SideBarLinks(show_home=True)
 
 # Header
-st.title("🛠️ Whats up, Jack?")
+st.title("💼 Whats up, Jack?")
 
 # ---------------------- Main Layout ----------------------
-col1, col2 = st.columns([2, 1])
+col1, col2 = st.columns([3, 1])
 
 with col1:
     # GOALS
@@ -52,18 +52,32 @@ with col1:
     ]
 
     # HEADER
-    goal_col1, goal_col2 = st.columns([3, 1])
+    goal_col1, goal_col2, goal_col3 = st.columns([3, 1, 1.5])
     with goal_col1:
-        st.subheader("**Goal**")
+        st.subheader("**Goal**", divider=True)
+
     with goal_col2:
-        st.subheader("**Completion**")
-    st.write("---")
+        st.subheader("**Tags**", divider=True)
 
     for goal in goals:
         goal_id, title, notes, schedule = goal
 
+
+        # Fetch tags for a goal
+        tags_raw = requests.get(f"http://web-api:4000/tags/goals/{goal_id}/tags").json()
+
+        # Transform tags for display
+        tags_for_display = [
+            {
+                "name": t.get("name", "Unnamed"),
+                "color": safe_hex_color(t.get("color"), "#999999")
+            }
+            for t in tags_raw
+        ]
+
+
         with st.container():
-            g1, g2 = st.columns([3, 1])
+            g1, g2, g3 = st.columns([3, 1.5, 1])
 
             with g1:
                 st.write(f":red[**{title}**]")
@@ -74,9 +88,19 @@ with col1:
                         st.write(f"- {sub[1]}")
 
             with g2:
+                if tags_for_display:
+                    tag_htmls = [
+                        f"<span style='background:{t['color']}; padding:2px 6px; border-radius:4px; margin-right:4px; color:white;'>{t['name']}</span>"
+                        for t in tags_for_display
+                    ]
+                    st.markdown("".join(tag_htmls), unsafe_allow_html=True)
+                else:
+                    st.write("—")  # placeholder if no tags
+
+            with g3:
                 if st.button("Mark Complete", key=f"complete_{goal_id}"):
                     try:
-                        response = requests.put(f'http://web-api:4000/goals/goals/{goal_id}/complete')
+                        response = requests.put(f'http://web-api:4000/goals/{goal_id}/complete')
                         if response.status_code == 200:
                             st.success("Goal marked as completed!")
                             st.rerun()
@@ -88,7 +112,7 @@ with col1:
             st.write("---")
 
 with col2:
-    st.title("📊 Goal Status Overview")
+    st.header("📊 Goal Status Overview")
 
     # Fetch goals for charts
     goals_all = requests.get('http://web-api:4000/goals/all').json()
@@ -122,26 +146,28 @@ with col2:
     # Scatter: goals vs deadline
     st.subheader("Goals vs Deadline")
 
+    st.write("Interactive scatter plot of goals with deadlines.")
+
     df_scatter = pd.DataFrame(goals_all)
     df_scatter['schedule'] = pd.to_datetime(df_scatter.get('schedule', pd.NaT))
-    df_scatter['priority'] = df_scatter.get('priority', 'low')
+    df_scatter['priority'] = df_scatter.get('priority', 'high')
     df_scatter['status'] = df_scatter.get('status', 'PLANNED')
     df_scatter['title'] = df_scatter.get('title', 'Untitled')
-
-    priority_map = {'critical': 4, 'high': 3, 'medium': 2, 'low': 1}
-    df_scatter['priority_num'] = df_scatter['priority'].map(priority_map)
 
     fig2 = px.scatter(
         df_scatter,
         x='schedule',
-        y='priority_num',
-        color='status',
+        y='priority',
         hover_data=['title', 'notes', 'priority'],
-        labels={'priority_num': 'Priority', 'schedule': 'Deadline'},
-        title='Goals vs Deadline by Priority and Status',
+        labels={'priority': 'Priority', 'schedule': 'Deadline'},
+        title='High Priority Goals',
         height=500
     )
+
+    fig2.update_yaxes(showgrid=True, gridcolor='lightgray')                       
+
     st.plotly_chart(fig2, use_container_width=True)
+
 
 # ---------------------- Tags API ----------------------
 def fetch_tags(name: str | None = None, color: str | None = None):
@@ -172,6 +198,8 @@ def create_tag_api(name: str, color: str):
         return False, str(e)
 
 def rename_tag_api(tag_id: int, new_name: str | None = None, new_color: str | None = None):
+    logger.info(f"Received tag_id: {tag_id}")  # Log the tag_id to debug
+
     body = {}
     if new_name:
         body["name"] = new_name.strip()
@@ -180,7 +208,10 @@ def rename_tag_api(tag_id: int, new_name: str | None = None, new_color: str | No
     if not body:
         return False, "No fields to update"
     try:
+        tag_id = int(tag_id)  # Ensure tag_id is an integer
         r = requests.put(f"http://web-api:4000/tags/rename_tag/{tag_id}", json=body, timeout=5)
+        logger.info(f"Calling URL: {r} with body: {body}")
+
         if 200 <= r.status_code < 300:
             return True, r.json() if r.headers.get("content-type", "").startswith("application/json") else r.text
         return False, f"{r.status_code} {r.text[:200]}"
