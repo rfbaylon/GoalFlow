@@ -20,8 +20,8 @@ PLEASE LABEL WHERE YOUR PUT/POST/DELETE ROUTES ARE
         - 3.4 Completed by Ryan
     - [x] Jose Feature 2
         - 3.1 Completed by Ryan :D
-    - [ ] Jose Feature 3
-        - 3.6 working on this!
+    - [x] Jose Feature 3
+        - 3.6 Completed
 
 - [ ] Jack Landing Page
     - [ ] Jack Feature 1
@@ -69,14 +69,14 @@ As a professor, I want my completed projects to be removed from my planner (but 
 As a researcher, I want to be able to add projects to a database of potential projects.
 
 ## 3 (Jose)
-As a system admin, I need to be able to see bugs that people report to me, so there should be a dashboard for people to report. (not complete)
+As a system admin, I need to see the user trend of the app over time.
 
-As a system admin, there should be a community forum where I can answer questions and hear community feedback which aren't necessarily bugs. 
+As a system admin, I need to see bugs that people report. 
 
 As a system admin, I need to mark bugs as resolved.
 
 ## 4 (Jack)
-As a financial analyst, I need to set subgoals for my employees with checkboxes of whether the subgoal was met or not for the long term goal to succeed on time.
+As a financial analyst, I need to set subgoals with checkboxes to complete our goal on time.
 
 As a financial analyst, I want to add new company goals. 
 
