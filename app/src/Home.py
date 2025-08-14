@@ -15,12 +15,6 @@ st.write("What are we going to get done today?")
 
 left, right = st.columns(2)
 
-active = requests.get('http://web-api:4000/goals/active').json()
-active = [list(item.values()) for item in active]
-
-subgoals = requests.get('http://web-api:4000/goals/subgoals').json()
-subgoals = [list(item.values()) for item in subgoals]
-
 #0 - id
 #1 - title
 #2 - due
