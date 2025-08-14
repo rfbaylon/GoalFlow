@@ -126,6 +126,16 @@ with col1:
                                 st.rerun()
                             else: st.write(response.status_code)
 
+                    if st.button("Delete", key=f"delete_{gid}", use_container_width=True):
+                        if gid is None:
+                            st.error("Archive failed: missing goal id")
+                        else:
+                            response = requests.put(f'http://web-api:4000/goals/{gid}/delete')
+                            if response.status_code == 200:
+                                st.success("Deleted.") 
+                                st.rerun()
+                            else: st.write(response.status_code)
+
                 
 
                         # if st.button("Mark Complete", key=f"complete_{bug[2]}"):

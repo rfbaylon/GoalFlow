@@ -73,7 +73,7 @@ def mark_goal_complete(goal_id):
     
 
 @goals.route("/<int:goal_id>/delete", methods=["DELETE"])
-def mark_goal_complete(goal_id):
+def delete_goal(goal_id):
     try:
         cursor = db.get_db().cursor()
         cursor.execute("SELECT * FROM goals WHERE id = %s", (goal_id,))
@@ -81,11 +81,11 @@ def mark_goal_complete(goal_id):
         if not goal:
             return jsonify({"error": "Goal not found"}), 404
         # Update goal status to completed (1)
-        cursor.execute("UPDATE goals SET completed = 1, status = 'ARCHIVED' WHERE id = %s", (goal_id,))
+        cursor.execute("DELETE FROM goals WHERE id = %s", (goal_id,))
         db.get_db().commit()
-        cursor.close()
+        cursor.close() 
 
-        return jsonify({"message": "Goal marked as completed successfully"}), 200
+        return jsonify({"message": "Goal deleted"}), 200
     except Error as e: 
         return jsonify({"error": str(e)}), 500    
 
