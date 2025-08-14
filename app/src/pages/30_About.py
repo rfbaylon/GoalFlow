@@ -8,12 +8,12 @@ st.write("# About this App")
 
 st.markdown(
     """
-    This is a demo app for Data and Software in International Government and Politics Dialogue 2025 Project Course.  
+    This is a demo app to demonstrate the data and software of GoalFlow in the 2025 SU2 Intro to Databases Project.  
 
-    The goal of this demo is to provide information on the tech stack 
-    being used as well as demo some of the features of the various platforms. 
+    The goal of this demo is to show the capabilities of the tech stack 
+    being used as well as demo some of the features of the platforms. 
 
-    Stay tuned for more information and features to come!
+    Stay tuned for more information and features!
     """
 )
 
