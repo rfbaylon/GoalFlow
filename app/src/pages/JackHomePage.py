@@ -17,7 +17,6 @@ st.title("🛠️ Whats up, Jack?")
 # Create main layout: left column (system issues) and right column (quick actions + charts)
 col1, col2 = st.columns([2, 1])
 with col1:
-    st.write("### Company Goals")
 
     # GOALS
     goals = requests.get('http://web-api:4000/goals/active').json()
@@ -45,10 +44,9 @@ with col1:
     ]
 
     # HEADER
-    st.write("---")
     goal_col1, goal_col2 = st.columns([3, 1])
-    with goal_col1: st.write("**Goal**")
-    with goal_col2: st.write("**Completion**")
+    with goal_col1: st.subheader("**Goal**")
+    with goal_col2: st.subheader("**Completion**")
     st.write("---")
 
     for goal in goals:
@@ -80,8 +78,71 @@ with col1:
 
             st.write("---")
 
+with col2:
+    st.title("📊 Goal Status Overview")
+
+    # Fetch goals from API
+    goals = requests.get('http://web-api:4000/goals/all').json()  # or endpoint for all goals
+
+    # Convert to DataFrame
+    df = pd.DataFrame(goals)
+
+    # Ensure 'status' column exists
+    if 'status' not in df.columns:
+        df['status'] = 'ACTIVE'  # default fallback
+
+    # Count goals per status
+    status_counts = df['status'].value_counts().reset_index()
+    status_counts.columns = ['Status', 'Count']
+
+    # Optional: color mapping for clarity
+    color_map = {
+        'ACTIVE': 'orange',
+        'PLANNED': 'blue',
+        'ON ICE': 'gray',
+        'ARCHIVED': 'green'
+    }
+
+    # Create bar chart
+    st.subheader("Goals by Status")
+    fig = px.bar(
+        status_counts,
+        x='Status',
+        y='Count',
+        color='Status',
+        color_discrete_map=color_map
+    )
+
+    st.plotly_chart(fig, use_container_width=True)
 
 
+    st.subheader("Goals vs Deadline")
+
+    goals = requests.get('http://web-api:4000/goals/all').json()
+
+    df = pd.DataFrame(goals)
+
+    df['schedule'] = pd.to_datetime(df.get('schedule', pd.NaT))
+    df['priority'] = df.get('priority', 'low')
+    df['status'] = df.get('status', 'PLANNED')
+    df['title'] = df.get('title', 'Untitled')
+
+    priority_map = {'critical': 4, 'high': 3, 'medium': 2, 'low': 1}
+    df['priority_num'] = df['priority'].map(priority_map)
+
+    # Scatter plot
+    fig = px.scatter(
+        df,
+        x='schedule',
+        y='priority_num',  # numeric representation for vertical positioning
+        color='status',
+        hover_data=['title', 'notes', 'priority'],
+        labels={'priority_num': 'Priority', 'schedule': 'Deadline'},
+        title='Goals vs Deadline by Priority and Status',
+        height=500
+    )
+
+    st.plotly_chart(fig, use_container_width=True)
 
 # Fetch all goals
 all_goals = requests.get('http://web-api:4000/goals/active').json()
