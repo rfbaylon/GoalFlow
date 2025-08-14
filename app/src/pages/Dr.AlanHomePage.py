@@ -115,18 +115,6 @@ with col1:
                     st.write("✅ Completed")
             st.write("---")
 
-            # with pc3:
-            #     if st.button("Mark Complete", key=f"complete_{project_id}"):
-            #         try:
-            #             response = requests.put(f'http://web-api:4000/goals/goals/{project_id}/complete')
-            #             if response.status_code == 200:
-            #                 st.success("Project marked as completed!")
-            #                 st.rerun()  # Refresh the page to show updated status
-            #             else: # Throws an error if the request fails.
-            #                 st.error(f"Error: {response.status_code}")
-            #         except Exception as e:
-            #             st.error(f"Error updating bug: {str(e)}")
-
 
 
     # # Research project cards with interactive dropdowns
@@ -195,47 +183,40 @@ with col1:
     #         status4 = st.selectbox("Status:", 
     #                              ["ON ICE", "PLANNED", "ACTVIE", "ARCHIVED"],
     #                              index=1, key="proj4_status")
-    
-    # Save changes button
-    if st.button("💾 Save All Changes", type="secondary", use_container_width=True):
-        st.success("✅ Research projects updated successfully!")
-        # Here you could add API calls to save to database
-    
-    st.write("---")
-    
+    with col2:
     # Academic Charts Section
-    st.write("### 📊 RESEARCH OVERVIEW")
+        st.write("### 📊 RESEARCH OVERVIEW")
     
     # Sample data for academic charts
-    research_data = pd.DataFrame({
-        'Month': ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'],
-        'Papers Published': [1, 0, 2, 1, 1, 3],
-        'Research Hours': [45, 52, 38, 48, 55, 42]
-    })
-    
-    # Research productivity chart
-    fig_research = px.line(research_data, x='Month', y=['Papers Published', 'Research Hours'], 
-                          title="Research Productivity",
-                          color_discrete_map={'Papers Published': '#1f77b4', 'Research Hours': '#ff7f0e'})
-    fig_research.update_layout(height=200, showlegend=True, 
-                              title_font_size=12, margin=dict(l=0, r=0, t=30, b=0))
-    st.plotly_chart(fig_research, use_container_width=True)
-    
-    # Project status pie chart
-    project_data = pd.DataFrame({
-        'Status': ['Research', 'Writing', 'Review', 'Published'],
-        'Count': [5, 3, 2, 4]
-    })
-    
-    fig_projects = px.pie(project_data, values='Count', names='Status', 
-                         title="Project Status Distribution",
-                         color_discrete_map={'Research': '#ff7f0e', 
-                                           'Writing': '#1f77b4', 
-                                           'Review': '#9467bd',
-                                           'Published': '#2ca02c'})
-    fig_projects.update_layout(height=200, title_font_size=12, 
-                              margin=dict(l=0, r=0, t=30, b=0))
-    st.plotly_chart(fig_projects, use_container_width=True)
+        research_data = pd.DataFrame({
+            'Month': ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'],
+            'Papers Published': [1, 0, 2, 1, 1, 3],
+            'Research Hours': [45, 52, 38, 48, 55, 42]
+        })
+        
+        # Research productivity chart
+        fig_research = px.line(research_data, x='Month', y=['Papers Published', 'Research Hours'], 
+                            title="Research Productivity",
+                            color_discrete_map={'Papers Published': '#1f77b4', 'Research Hours': '#ff7f0e'})
+        fig_research.update_layout(height=200, showlegend=True, 
+                                title_font_size=12, margin=dict(l=0, r=0, t=30, b=0))
+        st.plotly_chart(fig_research, use_container_width=True)
+        
+        # Project status pie chart
+        project_data = pd.DataFrame({
+            'Status': ['Research', 'Writing', 'Review', 'Published'],
+            'Count': [5, 3, 2, 4]
+        })
+        
+        fig_projects = px.pie(project_data, values='Count', names='Status', 
+                            title="Project Status Distribution",
+                            color_discrete_map={'Research': '#ff7f0e', 
+                                            'Writing': '#1f77b4', 
+                                            'Review': '#9467bd',
+                                            'Published': '#2ca02c'})
+        fig_projects.update_layout(height=200, title_font_size=12, 
+                                margin=dict(l=0, r=0, t=30, b=0))
+        st.plotly_chart(fig_projects, use_container_width=True)
 
 # Bottom metrics section
 st.write("---")
