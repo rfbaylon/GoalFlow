@@ -35,11 +35,11 @@ def get_all_tags():
 
         # Get column names to map to dictionaries
         columns = [col[0] for col in cursor.description]
-        tags = [dict(zip(columns, row)) for row in results]
+        tags_list = [dict(zip(columns, row)) for row in results]
         cursor.close()
 
-        current_app.logger.info(f'Successfully retrieved {len(tags)} tags')
-        return jsonify(tags), 200
+        current_app.logger.info(f'Successfully retrieved {len(tags_list)} tags')
+        return jsonify(tags_list), 200
     except Error as e:
         current_app.logger.error(f'Database error in get_all_tags: {str(e)}')
         return jsonify({"error": str(e)}), 500
@@ -65,7 +65,7 @@ def create_tag():
             query,
             (
                 data.get("name"),
-                data("color"),
+                data.get("color"),  # <-- FIXED
             ),
         )
 
@@ -133,7 +133,7 @@ def rename_tag(tag_id):
     except Error as e:
         return jsonify({"error": str(e)}), 500
     
-@tags.route("tags/<int:tag_id>", methods=["GET"])
+@tags.route("/tags/<int:tag_id>", methods=["GET"])  # <-- FIXED leading slash
 def get_tag(tag_id):
     try:
         cursor = db.get_db().cursor()
@@ -161,4 +161,3 @@ def get_goal_tags(goal_id):
         WHERE gt.goal_id = %s
     """, (goal_id,))
     return jsonify(cursor.fetchall())
-
