@@ -12,6 +12,7 @@ from backend.support.support_routes import support
 from backend.tags.tags_routes import tags
 from backend.daily_tasks.daily_tasks_routes import daily_tasks  
 from backend.consistent_tasks.consistent_tasks_routes import consistent_tasks
+from backend.habits.habit_routes import habits
 
 
 def create_app():
@@ -58,6 +59,7 @@ def create_app():
     app.register_blueprint(tags, url_prefix="/tags")
     app.register_blueprint(daily_tasks, url_prefix="/daily_tasks")
     app.register_blueprint(consistent_tasks, url_prefix="/consistent_tasks")
+    app.register_blueprint(habits, url_prefix="/habits")
 
     # Don't forget to return the app object
     return app

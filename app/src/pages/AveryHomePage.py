@@ -167,23 +167,19 @@ with col2:
         st.session_state["habit_logs"] = []
 
     with st.form("habit_form", clear_on_submit=True):
-        log_date = st.date_input("Date", value=date.today())
-        log_time = st.time_input("Time", value=time(9, 0))
-        habit = st.text_input("What did you do?", placeholder="Sketching / Reading / Branding / Prototype ...")
-        duration = st.number_input("Minutes", min_value=5, max_value=480, value=30, step=5)
-        notes = st.text_area("Notes (optional)", placeholder="Breakthroughs, blockers, references, etc.")
+        uid = st.text_input("User ID")
+        title = st.text_input("Title")
+        notes = st.text_area("Notes")
         submitted = st.form_submit_button("Log")
 
         if submitted:
             payload = {
-                "date": log_date.isoformat(),
-                "time": log_time.strftime("%H:%M"),
-                "habit": (habit or "General").strip(),
-                "duration_min": int(duration),
+                "uid": uid.strip(),
+                "title": title.strip(),
                 "notes": notes.strip() or None,
             }
             try:
-                resp = requests.post(f"{API_URL}/habits/log", json=payload, timeout=5)
+                resp = requests.post(f"{API_URL}/habits/create", json=payload, timeout=5)
                 if 200 <= resp.status_code < 300:
                     st.success("Logged.")
                 else:
@@ -192,11 +188,10 @@ with col2:
             except Exception:
                 st.session_state["habit_logs"].append(payload)
                 st.warning("Logged locally (server unreachable).")
+            st.write(payload)
 
     if st.session_state["habit_logs"]:
         st.write("Recent Logs")
         for h in st.session_state["habit_logs"][-5:][::-1]:
-            line = f"- {h['date']} {h['time']} · {h['habit']} · {h['duration_min']}m"
-            if h.get("notes"):
-                line += f"\n  \n  :grey[{h['notes']}]"
+            line = f"- {h['title']}"
             st.markdown(line)
