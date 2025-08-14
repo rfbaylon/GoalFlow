@@ -13,8 +13,7 @@ st.session_state['authenticated'] = False
 SideBarLinks(show_home=True)
 
 # Header
-st.title("🛠️ Whats up, Goat?")
-st.write("*System Administrator Dashboard*")
+st.title("🛠️ Whats up, Jose?")
 
 # Create main layout: left column (system issues) and right column (quick actions + charts)
 col1, col2 = st.columns([2, 1])
