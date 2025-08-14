@@ -1,170 +1,198 @@
+# app/pages/AveryHomePage.py
+
 import logging
+import streamlit as st
+import requests
+from datetime import datetime, date, time
+
+logging.basicConfig(
+    format="%(filename)s:%(lineno)s:%(levelname)s -- %(message)s",
+    level=logging.INFO,
+)
 logger = logging.getLogger(__name__)
 
-import streamlit as st
-import pandas as pd
-import plotly.express as px
-from datetime import date, datetime
+API_URL = "http://web-api:4000"
 
-st.set_page_config(layout='wide', page_title="🎨 Avery — Home")
+# --------------------------
+# helpers
+# --------------------------
+def _parse_schedule(s: str | None):
+    if not s:
+        return None
+    for fmt in (
+        "%a, %d %b %Y %H:%M:%S %Z",  # "Fri, 15 Aug 2025 00:00:00 GMT"
+        "%Y-%m-%d",
+        "%Y-%m-%d %H:%M:%S",
+    ):
+        try:
+            return datetime.strptime(s, fmt).date()
+        except Exception:
+            continue
+    try:
+        return datetime.strptime(s.split(" GMT")[0], "%a, %d %b %Y %H:%M:%S").date()
+    except Exception:
+        return None
 
-# Header
-st.title("🎨 GOOD MORNING, AVERY!")
-st.write("*Freelance Designer Dashboard*")
 
-# Sample Data
-today = date.today()
+def _due_label(d):
+    if not d:
+        return "No deadline"
+    days = (d - date.today()).days
+    prefix = "D-" if days >= 0 else "D+"
+    return f"{prefix}{abs(days)} · {d.strftime('%b %d, %Y')}"
 
-projects_df = pd.DataFrame([
-    {"title": "Portfolio Revamp", "priority": "High", "category": "Portfolio", "deadline": date(2025, 9, 5), "phase": 2, "phases_total": 4, "progress": 0.45},
-    {"title": "Client Brand Kit", "priority": "High", "category": "Client Work", "deadline": date(2025, 8, 28), "phase": 1, "phases_total": 3, "progress": 0.30},
-    {"title": "Illustration Series", "priority": "Medium", "category": "Hobbies", "deadline": date(2025, 10, 10), "phase": 3, "phases_total": 5, "progress": 0.60},
-    {"title": "UX Case Study", "priority": "Low", "category": "Portfolio", "deadline": date(2025, 9, 25), "phase": 1, "phases_total": 2, "progress": 0.20},
-])
+def fetch_active_goals():
+    try:
+        r = requests.get(f"{API_URL}/goals/active", timeout=5)
+        if r.status_code == 200:
+            return r.json()
+        st.error(f"Failed to load active goals: {r.status_code}")
+    except Exception as e:
+        st.error(f"Error contacting API: {e}")
+    return []
 
-def d_day(d):
-    return (d - today).days
+def try_put(url: str):
+    try:
+        resp = requests.put(url, timeout=5, allow_redirects=False)
+        return resp.status_code, (resp.text or "")
+    except Exception as e:
+        return None, str(e)
 
-projects_df["d_day"] = projects_df["deadline"].apply(d_day)
+def get_first_bug_id():
+    try:
+        r = requests.get(f"{API_URL}/support/bugs", timeout=5)
+        if r.status_code == 200:
+            data = r.json()
+            if isinstance(data, list) and data:
+                item = data[0]
+                if isinstance(item, dict):
+                    return item.get("id") or item.get("bug_id")
+        return None
+    except Exception:
+        return None
 
-daily_logs = {
-    "Hobbies": [
-        {"task": "Sketch 10 min", "done": True},
-        {"task": "Read 20 min", "done": False},
-    ],
-    "Personal": [
-        {"task": "Stretching 5 min", "done": True},
-    ],
-    "Work": [
-        {"task": "Send invoice to ACME", "done": False},
-        {"task": "Review wireframes", "done": True},
-    ],
-    "Daily": [
-        {"task": "Inbox zero", "done": False},
-    ],
-}
+# --------------------------
+# UI
+# --------------------------
+st.set_page_config(layout="wide", page_title="Avery — Home")
 
-completion_by_cat = pd.DataFrame([
-    {"Category": "Client Work", "Completed": 6},
-    {"Category": "Portfolio",   "Completed": 3},
-    {"Category": "Hobbies",     "Completed": 4},
-])
+st.title("🎨 Avery — Projects")
 
-habit_trend = pd.DataFrame({
-    "Date": pd.date_range(end=pd.Timestamp.today().normalize(), periods=14),
-    "Done": [1,0,1,1,1,0,1,1,1,0,1,1,1,1],
-})
-
-# Create main layout: left column (goals) and right column (daily actions + charts)
 col1, col2 = st.columns([2, 1])
 
+# ========== LEFT: Active Projects + Archive ==========
 with col1:
-    st.write("### 🗂️ MAIN PROJECTS")
-    for i, (_, row) in enumerate(projects_df.sort_values(by=["priority", "d_day"]).iterrows()):
-        with st.container():
-            left, right = st.columns([3, 1])
+    st.write("### Active Projects")
 
-            with left:
-                st.write(f"{row['title']}")
-                st.write(f"Category: {row['category']}")
-                st.write(f"D-{row['d_day']}  (Due: {row['deadline'].strftime('%b %d, %Y')})")
-                st.progress(row["progress"])
+    goals = fetch_active_goals()
 
-            with right:
-                priority_options = ["🔴 Critical", "🟠 High", "🟡 Medium", "🟢 Low"]
-                prio_map = {"Critical": "🔴 Critical", "High": "🟠 High", "Medium": "🟡 Medium", "Low": "🟢 Low"}
-                default_prio_label = prio_map.get(row["priority"], "🟡 Medium")
-                default_prio_idx = priority_options.index(default_prio_label)
+    st.write("---")
+    h1, h2, h3 = st.columns([2, 1, 1])
+    h1.write("**Project**")
+    h2.write("**Due**")
+    h3.write("**Actions**")
+    st.write("---")
 
-                st.selectbox(
-                    "Priority:",
-                    priority_options,
-                    index=default_prio_idx,
-                    key=f"prio_{i}_{row['title']}"
-                )
+    if not goals:
+        st.info("No active projects.")
+    else:
+        def _sort_key(g):
+            sched = _parse_schedule(g.get("schedule"))
+            return (sched is None, sched or date.max, (g.get("title") or "").lower())
 
-                status_options = ["Planning", "Research", "Writing", "Review", "Published"]
-                prog = float(row["progress"])
-                if prog >= 0.99:
-                    default_status = "Published"
-                elif prog >= 0.80:
-                    default_status = "Review"
-                elif prog >= 0.50:
-                    default_status = "Writing"
-                elif prog > 0:
-                    default_status = "Research"
-                else:
-                    default_status = "Planning"
+        for g in sorted(goals, key=_sort_key):
+            gid = g.get("id") or g.get("goal_id") or g.get("goalsid")
+            title = g.get("title") or "Untitled"
+            notes = (g.get("notes") or "").strip()
+            sched = _parse_schedule(g.get("schedule"))
+            due_str = _due_label(sched)
 
-                st.selectbox(
-                    "Status:",
-                    status_options,
-                    index=status_options.index(default_status),
-                    key=f"status_{i}_{row['title']}"
-                )
-        st.write("---")
+            with st.container():
+                c1, c2, c3 = st.columns([2, 1, 1])
+                with c1:
+                    st.write(f"**{title}**")
+                    if notes:
+                        st.write(notes)
+                with c2:
+                    st.write(due_str)
+                with c3:
+                    if st.button("Archive", key=f"archive_{gid}", use_container_width=True):
+                        if gid is None:
+                            st.error("Archive failed: missing goal id")
+                        else:
+                            url1 = f"{API_URL}/goals/{gid}/complete"
+                            code, body = try_put(url1)
+                            if code == 200:
+                                st.success("Archived.")
+                                st.rerun()
+                            else:
+                                url2 = f"{API_URL}/support/bugs/{gid}/complete"
+                                code2, body2 = try_put(url2)
+                                if code2 == 200:
+                                    st.success("Archived (temporary mapping via support/bugs).")
+                                    st.rerun()
+                                else:
+                                    fallback_id = get_first_bug_id()
+                                    if fallback_id is not None:
+                                        url3 = f"{API_URL}/support/bugs/{fallback_id}/complete"
+                                        code3, body3 = try_put(url3)
+                                        if code3 == 200:
+                                            st.warning(
+                                                "Goals complete 라우트가 없어 임시로 support/bugs 완료 호출은 성공했습니다. "
+                                            )
+                                            st.rerun()
+                                        else:
+                                            st.error("Archive failed on all routes.")
+                                            with st.expander("Details"):
+                                                st.write(f"1) {url1} → {code}"); st.code((body or "")[:500])
+                                                st.write(f"2) {url2} → {code2}"); st.code((body2 or "")[:500])
+                                                st.write(f"3) {url3} → {code3}"); st.code((body3 or "")[:500])
+                                    else:
+                                        st.error("Archive failed. No fallback bug id.")
+                                        with st.expander("Details"):
+                                            st.write(f"1) {url1} → {code}"); st.code((body or "")[:500])
+                                            st.write(f"2) {url2} → {code2}"); st.code((body2 or "")[:500])
 
+            st.write("---")
+
+# ========== RIGHT: Daily Log ==========
 with col2:
-    st.write("### ⚡ QUICK ACTIONS")
-    a1 = st.columns(1)[0]
-    with a1:
-        if st.button("🗄️ Archive", use_container_width=True):
-            st.switch_page("pages/01_Archive.py")
+    st.write("### Daily Log")
 
-    st.write("---")
-    st.write("### ✍️ DAILY LOGS")
+    if "habit_logs" not in st.session_state:
+        st.session_state["habit_logs"] = []
 
-    for cat, items in daily_logs.items():
-        with st.expander(f"{cat}"):
-            for i, item in enumerate(items, start=1):
-                st.checkbox(f"{item['task']}", value=item["done"], key=f"{cat}_{i}")
+    with st.form("habit_form", clear_on_submit=True):
+        log_date = st.date_input("Date", value=date.today())
+        log_time = st.time_input("Time", value=time(9, 0))
+        habit = st.text_input("What did you do?", placeholder="Sketching / Reading / Branding / Prototype ...")
+        duration = st.number_input("Minutes", min_value=5, max_value=480, value=30, step=5)
+        notes = st.text_area("Notes (optional)", placeholder="Breakthroughs, blockers, references, etc.")
+        submitted = st.form_submit_button("Log")
 
-    st.write("---")
-    st.write("### 📈 PROGRESS REPORT")
+        if submitted:
+            payload = {
+                "date": log_date.isoformat(),
+                "time": log_time.strftime("%H:%M"),
+                "habit": (habit or "General").strip(),
+                "duration_min": int(duration),
+                "notes": notes.strip() or None,
+            }
+            try:
+                resp = requests.post(f"{API_URL}/habits/log", json=payload, timeout=5)
+                if 200 <= resp.status_code < 300:
+                    st.success("Logged.")
+                else:
+                    st.session_state["habit_logs"].append(payload)
+                    st.warning("Logged locally (server endpoint not ready).")
+            except Exception:
+                st.session_state["habit_logs"].append(payload)
+                st.warning("Logged locally (server unreachable).")
 
-    fig_cat = px.pie(
-        completion_by_cat, values="Completed", names="Category",
-        title="Completed by Category"
-    )
-    fig_cat.update_layout(height=220, title_font_size=12, margin=dict(l=0, r=0, t=30, b=0))
-    st.plotly_chart(fig_cat, use_container_width=True)
-
-    fig_trend = px.line(habit_trend, x="Date", y="Done", markers=True, title="Habit Consistency (Last 14 days)")
-    fig_trend.update_yaxes(tickmode="array", tickvals=[0,1], ticktext=["Miss","Done"])
-    fig_trend.update_layout(height=220, title_font_size=12, margin=dict(l=0, r=0, t=30, b=0))
-    st.plotly_chart(fig_trend, use_container_width=True)
-
-# =========================
-st.write("---")
-st.write("### 🎯 KEY METRICS")
-m1, m2, m3, m4 = st.columns(4)
-
-streak_days = int(habit_trend["Done"].tail(7).sum())
-tasks_today = sum(item["done"] for cat in daily_logs.values() for item in cat)
-active_projects = (projects_df["progress"] < 1.0).sum()
-next_deadline = projects_df.sort_values("d_day").iloc[0]["deadline"].strftime("%b %d")
-
-with m1:
-    st.metric("Habit Streak (7d)", f"{streak_days} days", delta="Keep it up")
-with m2:
-    st.metric("Tasks Checked Today", f"{tasks_today}", delta="vs. yesterday +1")
-with m3:
-    st.metric("Active Projects", f"{active_projects}")
-with m4:
-    st.metric("Next Deadline", next_deadline, delta=f"D-{projects_df['d_day'].min()}")
-
-# Action buttons at bottom
-st.write("---")
-b1, b2, b3 = st.columns(3)
-
-with b1:
-    if st.button("🚨 Create New Project", type="primary", use_container_width=True):
-        st.switch_page('pages/01_Add_New_Project.py')
-
-with b2:
-    if st.button("🗑 Delete Project", type="primary", use_container_width=True):
-        st.switch_page('pages/Delete_Project.py')
-
-with b3:
-    if st.button("🏠 Return To Dashboard", type="primary", use_container_width=True):
-        st.switch_page('HomePage.py')
+    if st.session_state["habit_logs"]:
+        st.write("Recent Logs")
+        for h in st.session_state["habit_logs"][-5:][::-1]:
+            line = f"- {h['date']} {h['time']} · {h['habit']} · {h['duration_min']}m"
+            if h.get("notes"):
+                line += f"\n  \n  :grey[{h['notes']}]"
+            st.markdown(line)
