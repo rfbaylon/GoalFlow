@@ -9,7 +9,7 @@ support = Blueprint("support", __name__)
 def get_appstats():
     try:
         cursor = db.get_db().cursor()
-        query = "SELECT title, description, id, priority, completed FROM bug_reports;"
+        query = "SELECT title, description, id, priority, completed FROM bug_reports WHERE completed = 0;"
         cursor.execute(query)
         stats = cursor.fetchall()
         cursor.close()
@@ -28,7 +28,7 @@ def mark_bug_complete(bug_id):
         if not bug:
             return jsonify({"error": "Bug not found"}), 404
         # Update bug status to completed (1)
-        cursor.execute("UPDATE bugs SET completed = 1 WHERE id = %s", (bug_id,))
+        cursor.execute("UPDATE bug_reports SET completed = 1 WHERE id = %s", (bug_id,))
         db.get_db().commit()
         cursor.close()
 

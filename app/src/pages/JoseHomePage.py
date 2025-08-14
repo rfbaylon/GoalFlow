@@ -13,7 +13,7 @@ st.session_state['authenticated'] = False
 SideBarLinks(show_home=True)
 
 # Header
-st.title("🛠️ GOOD MORNING, JOSE!")
+st.title("🛠️ Whats up, Goat?")
 st.write("*System Administrator Dashboard*")
 
 # Create main layout: left column (system issues) and right column (quick actions + charts)
@@ -32,17 +32,17 @@ with col1:
     #3 - priority
     #4 - desc
 
+    st.write("---")
     bug_col1, bug_col2, bug_col3, bug_col4 = st.columns([2, 1, 1, 1])
-    with bug_col1: st.write("Bug")
-    with bug_col2: st.write("Priority")
-    with bug_col3: st.write("Completion")
-    with bug_col4: st.write("Mark Complete")
+    with bug_col1: st.write("**Uncompleted Bugs**")
+    with bug_col2: st.write("**Priority**")
+    with bug_col3: st.write("**Completion**")
     st.write("---")
 
     for bug in bugs:
         with st.container():
             
-            bug_col1, bug_col2, bug_col3, bug_col4 = st.columns([2, 1, 1, 1])
+            bug_col1, bug_col2, bug_col3 = st.columns([2, 1, 1])
             with bug_col1:
                 st.write(f":red[**{bug[1]}**]") #title
                 st.write(bug[4]) #desc
@@ -53,11 +53,6 @@ with col1:
                 if p == "medium": st.write(f":green[**{p}**]")
                 if p == "low": st.write(f":blue[**{p}**]")
             with bug_col3:
-                if bug[0] == 0:
-                    st.write("Unfinished")
-                if bug[0] == 1:
-                    st.write("Completed!")
-            with bug_col4:
                 if bug[0] == 0:
                     if st.button("Mark Complete", key=f"complete_{bug[2]}"):
                         try:
@@ -70,13 +65,9 @@ with col1:
                         except Exception as e:
                             st.error(f"Error updating bug: {str(e)}")
             st.write("---")
+
             
     
-    #USELESS RN -- MAYBE EDIT
-    # Save changes button
-    if st.button("💾 Save All Changes", type="secondary", use_container_width=True):
-        st.success("✅ System priorities updated successfully!")
-        # Here you could add API calls to save to database
 
 with col2:
     # st.write("### ⚡ ADMIN ACTIONS")

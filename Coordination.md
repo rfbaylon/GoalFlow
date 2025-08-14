@@ -21,6 +21,7 @@ PLEASE LABEL WHERE YOUR PUT/POST/DELETE ROUTES ARE
     - [x] Jose Feature 2
         - 3.1 Completed by Ryan :D
     - [ ] Jose Feature 3
+        - 3.6 working on this!
 
 - [ ] Jack Landing Page
     - [ ] Jack Feature 1
@@ -36,7 +37,6 @@ PLEASE LABEL WHERE YOUR PUT/POST/DELETE ROUTES ARE
     - [x] Avery Feature 1
         - 1.1 Done by Ryan. I interpreted it as just having subgoals, though that shouldnt be an issue.
     - [ ] Avery Feature 2
-        - 1.5 (Ryan is working on this)
     - [ ] Avery Feature 3
 
 
@@ -76,7 +76,7 @@ As a system admin, I should be able to help my users when they email me. I'll ne
 As a system admin, I should know which users have a paid plan, so I can prioritize them on customer support.
 As a system admin, I should be able to see the amount of people who have downloaded or used my app so I can track its popularity over time.
 As a system admin, there should be a community forum where I can answer questions and hear community feedback which aren't necessarily bugs.
-As a system admin, It would be nice to know a lot of information about our users, in case we want to market the app better in the future. 
+As a system admin, I need to mark bugs as resolved
 
 ## 4 (Jack)
 As a financial analyst, I need to be able to see the aggregated amount of tasks completed by employees to check the progress of my company’s goals
