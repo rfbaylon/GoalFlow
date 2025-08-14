@@ -15,13 +15,13 @@ DUE FRI AT 5pm
 
 PLEASE LABEL WHERE YOUR PUT/POST/DELETE ROUTES ARE
 
-- [ ] Jose Landing Page
+- [x] Jose Landing Page
     - [x] Jose Feature 1
         - 3.4 Completed by Ryan
     - [x] Jose Feature 2
         - 3.1 Completed by Ryan :D
-    - [ ] Jose Feature 3
-        - 3.6 working on this!
+    - [x] Jose Feature 3
+        - 3.6 finished by ryan! **PUT**
 
 - [ ] Jack Landing Page
     - [ ] Jack Feature 1
