@@ -9,6 +9,9 @@ from backend.simple.simple_routes import simple_routes
 from backend.goals.goal_routes import goals
 from backend.users.users_routes import users
 from backend.support.support_routes import support
+from backend.tags.tags_routes import tags
+from backend.daily_tasks.daily_tasks_routes import daily_tasks  
+from backend.consistent_tasks.consistent_tasks_routes import consistent_tasks
 
 
 def create_app():
@@ -52,6 +55,9 @@ def create_app():
     app.register_blueprint(goals, url_prefix="/goals")
     app.register_blueprint(users, url_prefix="/users")
     app.register_blueprint(support, url_prefix="/support")
+    app.register_blueprint(tags, url_prefix="/tags")
+    app.register_blueprint(daily_tasks, url_prefix="/daily_tasks")
+    app.register_blueprint(consistent_tasks, url_prefix="/consistent_tasks")
 
     # Don't forget to return the app object
     return app
@@ -92,3 +98,5 @@ def setup_logging(app):
     # Set the base logging level to DEBUG to capture everything
     app.logger.setLevel(logging.DEBUG)
     app.logger.info('API startup')
+
+    
