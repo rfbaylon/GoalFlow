@@ -142,19 +142,3 @@ with col2:
 #         value="4.6/5",
 #         delta="0.3 increase"
 #     )
-
-# Action buttons at bottom
-st.write("---")
-bottom_col1, bottom_col2, bottom_col3 = st.columns(3)
-
-with bottom_col1:
-    if st.button("🚨 Reply To Bug Report", type="primary", use_container_width=True):
-        st.switch_page('pages/Add_New_Post.py')
-
-with bottom_col2:
-    if st.button("🗑 Delete Post Reply", type="primary", use_container_width=True):
-        st.switch_page('pages/Delete_Post.py')
-
-with bottom_col3:
-    if st.button("🏠 Return To Dashboard", type="primary", use_container_width=True):
-        st.switch_page('HomePage.py')
