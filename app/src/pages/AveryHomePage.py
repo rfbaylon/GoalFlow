@@ -82,7 +82,13 @@ col1, col2 = st.columns([2, 1])
 
 # ========== LEFT: Active Projects + Archive ==========
 with col1:
-    st.write("### Active Projects")
+    title_col1, title_col2 = st.columns([6,1])
+    with title_col1: st.write("### Active Projects")
+    with title_col2:
+        if st.button('Archive', 
+                        type='primary', 
+                        help="View archived tasks"):
+                st.switch_page('pages/Archive.py')
 
     goals = fetch_active_goals()
 
@@ -123,16 +129,18 @@ with col1:
                             response = requests.put(f'http://web-api:4000/goals/{gid}/complete')
                             if response.status_code == 200:
                                 st.success("Archived.") 
+                                st.write("successfully archived :)")
                                 st.rerun()
                             else: st.write(response.status_code)
 
                     if st.button("Delete", key=f"delete_{gid}", use_container_width=True):
                         if gid is None:
-                            st.error("Archive failed: missing goal id")
+                            st.error("delete failed: missing goal id")
                         else:
-                            response = requests.put(f'http://web-api:4000/goals/{gid}/delete')
+                            response = requests.delete(f'http://web-api:4000/goals/{gid}/delete')
                             if response.status_code == 200:
                                 st.success("Deleted.") 
+                                st.write("successfully deleted :)")
                                 st.rerun()
                             else: st.write(response.status_code)
 
