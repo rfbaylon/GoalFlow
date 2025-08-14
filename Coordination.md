@@ -45,7 +45,8 @@ PLEASE LABEL WHERE YOUR PUT/POST/DELETE ROUTES ARE
 - [ ] Alan Landing Page
     - [x] Alan Feature 1 **POST**
         - 2.3 done by ry
-    - [ ] Alan Feature 2
+    - [ ] Alan Feature 2 **PUT**
+        - 2.2 
     - [ ] Alan Feature 3
 
 - [ ] Avery Landing Page

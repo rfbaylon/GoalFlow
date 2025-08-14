@@ -1,94 +1,200 @@
+#                   ===== INITIAL IMPORTS =====                   #
+# app/pages/Dr.AlanHomePage.py
 import logging
+
+logging.basicConfig(
+    format='%(filename)s:%(lineno)s:%(levelname)s -- %(message)s', 
+    level=logging.INFO)
 logger = logging.getLogger(__name__)
 
+from modules.nav import SideBarLinks
 import streamlit as st
+import requests
 import pandas as pd
 import plotly.express as px
-import plotly.graph_objects as go
 
 
 
-st.set_page_config(layout='wide')
 
-# Show appropriate sidebar links for the role of the currently logged in user
-#SideBarLinks()
+
+#                   ===== UI LAYOUT =====                   #
+# Left Side Bar that links abck to Home Page / About Page.
+st.set_page_config(layout = 'wide')
+st.session_state['authenticated'] = False
+SideBarLinks(show_home=True)
 
 # Header
-st.title("📚 GOOD MORNING, DR. ALAN!")
-st.write("*Math Professor Research Dashboard*")
+st.title("📚 Good Morning, Dr. Alan!")
+st.write("*Project Dashboard for Math Research*")
 
-# Create main layout: left column (research projects) and right column (quick actions + charts)
+
+
+
+
+#                   ===== MAIN LAYOUT =====                   #
+# Create main layout: left column (research projects) ((((and right column (quick actions + charts)))))
 col1, col2 = st.columns([2, 1])
 
 with col1:
     st.write("### 🔬 ACTIVE RESEARCH PROJECTS")
-    
-    # Research project cards with interactive dropdowns
-    with st.container():
-        st.write("**PROJECT #1** - AI Statistical Models Research")
-        proj1_col1, proj1_col2, proj1_col3 = st.columns([2, 1, 1])
-        with proj1_col1:
-            st.progress(0.7)
-            st.write("Data Collection Phase")
-        with proj1_col2:
-            priority1 = st.selectbox("Priority:", 
-                                   ["🔴 Critical", "🟠 High", "🟡 Medium", "🟢 Low"],
-                                   index=0, key="proj1_priority")
-        with proj1_col3:
-            status1 = st.selectbox("Status:", 
-                                 ["ON ICE", "PLANNED", "ACTIVE", "ARCHIVED"],
-                                 index=1, key="proj1_status")
-    
+
+        # --- Explicit mapping and display of Goals (Projects)  ---
+    # Map only the attributes I want to display from the API response.
+
+    # SETS THE USER_ID BASED UPON SESSION STATE.
+    user_id = st.session_state.get("user_id")
+    if not user_id:
+        st.error("No user ID found. Please log in or select a user profile.")
+        st.stop()
+    user_id = 3 # Incase you refresh the page and it "logs you out" or something.
+
+    # PROJECTS (AKA: GOALS)
+    try:
+        projects = requests.get(f'http://web-api:4000/goals/user/{user_id}/active_and_priority').json()
+    except Exception as e:
+        st.error(f"Could not fetch projects: {e}")
+        projects = []
+
+    projects = [
+        [
+            item.get("id"),         # 0 - goal_id
+            item.get("title"),      # 1 - title
+            item.get("notes"),      # 2 - notes/description
+            item.get("priority"),   # 3 - priority
+            item.get("completed")   # 4 - completed
+        ]
+        for item in projects
+    ]
+
+    # HEADER
+    project_col1, project_col2, project_col3 = st.columns([2, 1, 1])
+    with project_col1: 
+        st.write("**Project**")
+    with project_col2: 
+        st.write("**Priority**")
+    with project_col3: 
+        st.write("**Completion**")
     st.write("---")
+
+    for project in projects:
+        project_id, title, notes, priority, completed = project
+
+        with st.container():
+            pc1, pc2, pc3 = st.columns([2, 1, 1])
+
+            with pc1:
+                st.write(f":red[**{title}**]")
+                st.write(notes)
+
+            with pc2:
+                p = priority
+                if p == "critical":
+                    st.markdown(":red[**🔴 Critical!**]")
+                elif p == "high":
+                    st.markdown(":orange[**🟠 High**]")
+                elif p == "medium":
+                    st.markdown(":yellow[**🟡 Medium**]")
+                elif p == "low":
+                    st.markdown(":green[**🟢 Low**]")
+                else:
+                    st.write(p)
+
+            with pc3:
+                if completed == 0:
+                    if st.button("Mark Complete", key=f"complete_{project_id}"):
+                        try:
+                            response = requests.put(f'http://web-api:4000/goals/goals/{project_id}/complete')
+                            if response.status_code == 200:
+                                st.success("Project marked as completed!")
+                                st.rerun()
+                            else:
+                                st.error(f"Error: {response.status_code}")
+                        except Exception as e:
+                            st.error(f"Error updating project: {str(e)}")
+                else:
+                    st.write("✅ Completed")
+            st.write("---")
+
+            # with pc3:
+            #     if st.button("Mark Complete", key=f"complete_{project_id}"):
+            #         try:
+            #             response = requests.put(f'http://web-api:4000/goals/goals/{project_id}/complete')
+            #             if response.status_code == 200:
+            #                 st.success("Project marked as completed!")
+            #                 st.rerun()  # Refresh the page to show updated status
+            #             else: # Throws an error if the request fails.
+            #                 st.error(f"Error: {response.status_code}")
+            #         except Exception as e:
+            #             st.error(f"Error updating bug: {str(e)}")
+
+
+
+    # # Research project cards with interactive dropdowns
+    # with st.container():
+    #     st.write("**PROJECT #1** - AI Statistical Models Research")
+    #     proj1_col1, proj1_col2, proj1_col3 = st.columns([2, 1, 1])
+    #     with proj1_col1:
+    #         st.progress(0.7)
+    #         st.write("Data Collectihase")on P
+    #     with proj1_col2:
+    #         priority1 = st.selectbox("Priority:", 
+    #                                ["🔴 Critical", "🟠 High", "🟡 Medium", "🟢 Low"],
+    #                                index=0, key="proj1_priority")
+    #     with proj1_col3:
+    #         status1 = st.selectbox("Status:", 
+    #                              ["ON ICE", "PLANNED", "ACTIVE", "ARCHIVED"],
+    #                              index=1, key="proj1_status")
     
-    with st.container():
-        st.write("**PROJECT #2** - Statistical Analysis Course Development")
-        proj2_col1, proj2_col2, proj2_col3 = st.columns([2, 1, 1])
-        with proj2_col1:
-            st.progress(0.4)
-            st.write("Curriculum Design")
-        with proj2_col2:
-            priority2 = st.selectbox("Priority:", 
-                                   ["🔴 Critical", "🟠 High", "🟡 Medium", "🟢 Low"],
-                                   index=1, key="proj2_priority")
-        with proj2_col3:
-            status2 = st.selectbox("Status:", 
-                                 ["ON ICE", "PLANNED", "ACTIVE", "ARCHIVED"],
-                                 index=0, key="proj2_status")
+    # st.write("---")
     
-    st.write("---")
+    # with st.container():
+    #     st.write("**PROJECT #2** - Statistical Analysis Course Development")
+    #     proj2_col1, proj2_col2, proj2_col3 = st.columns([2, 1, 1])
+    #     with proj2_col1:
+    #         st.progress(0.4)
+    #         st.write("Curriculum Design")
+    #     with proj2_col2:
+    #         priority2 = st.selectbox("Priority:", 
+    #                                ["🔴 Critical", "🟠 High", "🟡 Medium", "🟢 Low"],
+    #                                index=1, key="proj2_priority")
+    #     with proj2_col3:
+    #         status2 = st.selectbox("Status:", 
+    #                              ["ON ICE", "PLANNED", "ACTIVE", "ARCHIVED"],
+    #                              index=0, key="proj2_status")
     
-    with st.container():
-        st.write("**PROJECT #3** - Machine Learning Paper Publication")
-        proj3_col1, proj3_col2, proj3_col3 = st.columns([2, 1, 1])
-        with proj3_col1:
-            st.progress(0.9)
-            st.write("Final Review")
-        with proj3_col2:
-            priority3 = st.selectbox("Priority:", 
-                                   ["🔴 Critical", "🟠 High", "🟡 Medium", "🟢 Low"],
-                                   index=2, key="proj3_priority")
-        with proj3_col3:
-            status3 = st.selectbox("Status:", 
-                                 ["ON ICE", "PLANNED", "ACTIVE", "ARCHIVED"],
-                                 index=3, key="proj3_status")
+    # st.write("---")
     
-    st.write("---")
+    # with st.container():
+    #     st.write("**PROJECT #3** - Machine Learning Paper Publication")
+    #     proj3_col1, proj3_col2, proj3_col3 = st.columns([2, 1, 1])
+    #     with proj3_col1:
+    #         st.progress(0.9)
+    #         st.write("Final Review")
+    #     with proj3_col2:
+    #         priority3 = st.selectbox("Priority:", 
+    #                                ["🔴 Critical", "🟠 High", "🟡 Medium", "🟢 Low"],
+    #                                index=2, key="proj3_priority")
+    #     with proj3_col3:
+    #         status3 = st.selectbox("Status:", 
+    #                              ["ON ICE", "PLANNED", "ACTIVE", "ARCHIVED"],
+    #                              index=3, key="proj3_status")
     
-    with st.container():
-        st.write("**PROJECT #4** - Student Thesis Supervision")
-        proj4_col1, proj4_col2, proj4_col3 = st.columns([2, 1, 1])
-        with proj4_col1:
-            st.progress(0.5)
-            st.write("Methodology Review")
-        with proj4_col2:
-            priority4 = st.selectbox("Priority:", 
-                                   ["🔴 Critical", "🟠 High", "🟡 Medium", "🟢 Low"],
-                                   index=3, key="proj4_priority")
-        with proj4_col3:
-            status4 = st.selectbox("Status:", 
-                                 ["ON ICE", "PLANNED", "ACTVIE", "ARCHIVED"],
-                                 index=1, key="proj4_status")
+    # st.write("---")
+    
+    # with st.container():
+    #     st.write("**PROJECT #4** - Student Thesis Supervision")
+    #     proj4_col1, proj4_col2, proj4_col3 = st.columns([2, 1, 1])
+    #     with proj4_col1:
+    #         st.progress(0.5)
+    #         st.write("Methodology Review")
+    #     with proj4_col2:
+    #         priority4 = st.selectbox("Priority:", 
+    #                                ["🔴 Critical", "🟠 High", "🟡 Medium", "🟢 Low"],
+    #                                index=3, key="proj4_priority")
+    #     with proj4_col3:
+    #         status4 = st.selectbox("Status:", 
+    #                              ["ON ICE", "PLANNED", "ACTVIE", "ARCHIVED"],
+    #                              index=1, key="proj4_status")
     
     # Save changes button
     if st.button("💾 Save All Changes", type="secondary", use_container_width=True):

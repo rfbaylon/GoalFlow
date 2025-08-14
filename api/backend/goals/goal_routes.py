@@ -19,6 +19,29 @@ def get_active_goals():
     except Error as e:
         current_app.logger.error(f'Database error in get_active_goals: {str(e)}')
         return jsonify({"error": str(e)}), 500
+    
+
+
+# Route used on Dr. Alan's home page to get active goals with priority.
+@goals.route("/user/<int:user_id>/active_and_priority", methods=["GET"])
+def get_user_active_goals_with_priority(user_id):
+    try:
+        cursor = db.get_db().cursor()
+        cursor.execute(
+            "SELECT id, title, notes, priority, completed "
+            "FROM goals g "
+            "WHERE g.status = 'ACTIVE' AND g.userId = %s;",
+            (user_id,)
+        )
+        goals_data = cursor.fetchall()
+        cursor.close()
+        return jsonify(goals_data), 200
+
+    except Error as e:
+        current_app.logger.error(f'Database error in get_user_active_goals_with_priority: {str(e)}')
+        return jsonify({"error": str(e)}), 500
+
+
 
 @goals.route("/archive", methods=["GET"])
 def get_archive():

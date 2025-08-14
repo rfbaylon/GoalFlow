@@ -23,7 +23,7 @@ st.session_state['authenticated'] = False
 SideBarLinks(show_home=True)
 
 # Header
-st.title("🛠️ Whats up, Jack?")
+st.title("💼 Whats up, Jack?")
 
 # ---------------------- Main Layout ----------------------
 col1, col2 = st.columns([2, 1])
