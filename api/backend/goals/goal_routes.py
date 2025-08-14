@@ -18,7 +18,20 @@ def get_active_goals():
     except Error as e:
         current_app.logger.error(f'Database error in get_active_goals: {str(e)}')
         return jsonify({"error": str(e)}), 500
-    
+
+@goals.route("/archive", methods=["GET"])
+def get_archive():
+    try:
+        cursor = db.get_db().cursor()
+        query = "SELECT id, title, notes, schedule, completedAt FROM goals g WHERE g.status = 'ARCHIVED';"
+        cursor.execute(query)
+        goals_data = cursor.fetchall()
+        cursor.close()
+        return jsonify(goals_data), 200
+
+    except Error as e:
+        current_app.logger.error(f'Database error in get_active_goals: {str(e)}')
+        return jsonify({"error": str(e)}), 500
 
 @goals.route("/all", methods=["GET"])
 def get_all_goals():
@@ -63,7 +76,7 @@ def mark_goal_complete(goal_id):
         if not goal:
             return jsonify({"error": "Goal not found"}), 404
         # Update goal status to completed (1)
-        cursor.execute("UPDATE goals SET completed = 1, status = 'ARCHIVED' WHERE id = %s", (goal_id,))
+        cursor.execute("UPDATE goals SET completed = 1, status = 'ARCHIVED', completedAt = NOW() WHERE id = %s", (goal_id,))
         db.get_db().commit()
         cursor.close()
 
