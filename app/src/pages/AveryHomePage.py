@@ -138,7 +138,7 @@ with col1:
                                         code3, body3 = try_put(url3)
                                         if code3 == 200:
                                             st.warning(
-                                                "Goals complete 라우트가 없어 임시로 support/bugs 완료 호출은 성공했습니다. "
+                                                "Goals completed, but archived via fallback bug id."
                                             )
                                             st.rerun()
                                         else:
