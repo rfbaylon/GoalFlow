@@ -17,8 +17,8 @@ st.title("🛠️ Whats up, Jack?")
 # Create main layout: left column (system issues) and right column (quick actions + charts)
 col1, col2 = st.columns([2, 1])
 with col1:
-    st.write("### Company Goals")
 
+    # GOALS
     goals = requests.get('http://web-api:4000/goals/active').json()
 
     # Use explicit mapping instead of list(item.values())
@@ -32,10 +32,21 @@ with col1:
         for item in goals
     ]
 
-    st.write("---")
+    # SUBGOALS
+    subgoals = requests.get('http://web-api:4000/goals/subgoals').json()
+    subgoals = [
+    [
+        item.get("goalsId"),     # 2 - parent goal ID
+        item.get("title"),      # 1 - subgoal title
+        
+    ]
+    for item in subgoals
+    ]
+
+    # HEADER
     goal_col1, goal_col2 = st.columns([3, 1])
-    with goal_col1: st.write("**Goal**")
-    with goal_col2: st.write("**Completion**")
+    with goal_col1: st.subheader("**Goal**")
+    with goal_col2: st.subheader("**Completion**")
     st.write("---")
 
     for goal in goals:
@@ -48,6 +59,9 @@ with col1:
                 st.write(f":red[**{title}**]")   # Title on top
                 if notes:
                     st.write(notes)              # Notes/desc underneath
+                for subgoal in subgoals:
+                    if subgoal[0] == goal[0]:
+                        st.write(f"- {subgoal[1]}")
 
             with goal_col2:
                 # Use unique keys per goal
@@ -64,8 +78,71 @@ with col1:
 
             st.write("---")
 
+with col2:
+    st.title("📊 Goal Status Overview")
+
+    # Fetch goals from API
+    goals = requests.get('http://web-api:4000/goals/all').json()  # or endpoint for all goals
+
+    # Convert to DataFrame
+    df = pd.DataFrame(goals)
+
+    # Ensure 'status' column exists
+    if 'status' not in df.columns:
+        df['status'] = 'ACTIVE'  # default fallback
+
+    # Count goals per status
+    status_counts = df['status'].value_counts().reset_index()
+    status_counts.columns = ['Status', 'Count']
+
+    # Optional: color mapping for clarity
+    color_map = {
+        'ACTIVE': 'orange',
+        'PLANNED': 'blue',
+        'ON ICE': 'gray',
+        'ARCHIVED': 'green'
+    }
+
+    # Create bar chart
+    st.subheader("Goals by Status")
+    fig = px.bar(
+        status_counts,
+        x='Status',
+        y='Count',
+        color='Status',
+        color_discrete_map=color_map
+    )
+
+    st.plotly_chart(fig, use_container_width=True)
 
 
+    st.subheader("Goals vs Deadline")
+
+    goals = requests.get('http://web-api:4000/goals/all').json()
+
+    df = pd.DataFrame(goals)
+
+    df['schedule'] = pd.to_datetime(df.get('schedule', pd.NaT))
+    df['priority'] = df.get('priority', 'low')
+    df['status'] = df.get('status', 'PLANNED')
+    df['title'] = df.get('title', 'Untitled')
+
+    priority_map = {'critical': 4, 'high': 3, 'medium': 2, 'low': 1}
+    df['priority_num'] = df['priority'].map(priority_map)
+
+    # Scatter plot
+    fig = px.scatter(
+        df,
+        x='schedule',
+        y='priority_num',  # numeric representation for vertical positioning
+        color='status',
+        hover_data=['title', 'notes', 'priority'],
+        labels={'priority_num': 'Priority', 'schedule': 'Deadline'},
+        title='Goals vs Deadline by Priority and Status',
+        height=500
+    )
+
+    st.plotly_chart(fig, use_container_width=True)
 
 # Fetch all goals
 all_goals = requests.get('http://web-api:4000/goals/active').json()
@@ -73,43 +150,20 @@ all_goals = requests.get('http://web-api:4000/goals/active').json()
 # Filter ON ICE goals
 on_ice_goals = [goal for goal in all_goals if goal.get('status') == 'ON ICE']
 
-with col2:
-    st.write('### Subgoals')
 
-    goals = requests.get('http://web-api:4000/goals/all').json()
-    subgoals = requests.get('http://web-api:4000/goals/subgoals').json()
-
-    # 2. Create a mapping from goal ID to goal title
-    goal_id_to_title = {goal.get("id"): goal.get("title") for goal in goals}
-
-    subgoals = [
-        [
-            item.get("id"),         # 0 - subgoal_id
-            item.get("title"),      # 1 - subgoal title
-            item.get("goalsId")     # 2 - parent goal ID
-        ]
-        for item in subgoals
-    ]
-    st.write("---")
-    header_col1, header_col2 = st.columns([2, 2])
-    with header_col1:
-        st.write("**Subgoal**")
-    with header_col2:
-        st.write("**Parent Goal**")
-    st.write("---")
-
-    for subgoal in subgoals:
-        subgoal_id, subgoal_title, goals_id = subgoal
-        parent_goal_title = goal_id_to_title.get(goals_id, "Unknown Goal")
-
-        with st.container():
-            col1, col2 = st.columns([2, 2])
-            with col1:
-                st.write(f"- {subgoal_title}")
-            with col2:
-                st.write(f"{parent_goal_title}")
-
-    st.write("---")
+def fetch_tags(name: str | None = None, color: str | None = None):
+   """GET /tags/get_tag?name=&color="""
+   params = {}
+   if name: params["name"] = name.strip()
+   if color: params["color"] = color.strip()
+   try:
+       r = requests.get(f"{API_BASE}/tags/get_tag", params=params, timeout=5)
+       if r.ok:
+           return r.json()
+       st.error(f"Failed to load tags: {r.status_code}")
+   except Exception as e:
+       st.error(f"Error contacting tags API: {e}")
+   return []
 
 # ---------------------- API Calls ----------------------
 

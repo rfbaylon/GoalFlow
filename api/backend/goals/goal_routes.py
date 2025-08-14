@@ -53,8 +53,7 @@ def get_subgoal():
     try:
         current_app.logger.info('Starting get_all_goals request')
         cursor = db.get_db().cursor()
-        query = "SELECT g.id, sg.title FROM subgoals sg JOIN goals g ON g.id = sg.goalsid;"
-
+        query = "SELECT sg.goalsId, sg.title FROM subgoals sg;"
         current_app.logger.debug(f'Executing query: {query}')
         cursor.execute(query)
         goals_data = cursor.fetchall()
