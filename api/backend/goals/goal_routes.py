@@ -6,17 +6,32 @@ from flask import current_app
 goals = Blueprint("goals", __name__)
 
 @goals.route("/active", methods=["GET"])
-def get_all_goals():
+def get_active_goals():
     try:
         cursor = db.get_db().cursor()
-        query = "SELECT id, title, notes, schedule FROM goals g WHERE g.status = 'ACTIVE' LIMIT 3;"
+        query = "SELECT id, title, notes, schedule FROM goals g WHERE g.status = 'ACTIVE';"
         cursor.execute(query)
         goals_data = cursor.fetchall()
         cursor.close()
         return jsonify(goals_data), 200
 
     except Error as e:
-        current_app.logger.error(f'Database error in get_all_ngos: {str(e)}')
+        current_app.logger.error(f'Database error in get_active_goals: {str(e)}')
+        return jsonify({"error": str(e)}), 500
+    
+
+@goals.route("/all", methods=["GET"])
+def get_all_goals():
+    try:
+        cursor = db.get_db().cursor()
+        query = "SELECT id, title, notes, schedule, status FROM goals g;"
+        cursor.execute(query)
+        goals_data = cursor.fetchall()
+        cursor.close()
+        return jsonify(goals_data), 200
+
+    except Error as e:
+        current_app.logger.error(f'Database error in get_all_goals: {str(e)}')
         return jsonify({"error": str(e)}), 500
 
 @goals.route("/subgoals", methods=["GET"])
@@ -39,5 +54,63 @@ def get_subgoal():
         return jsonify({"error": str(e)}), 500
     
 
+@goals.route("/goals/<int:goal_id>/complete", methods=["PUT"])
+def mark_goal_complete(goal_id):
+    try:
+        cursor = db.get_db().cursor()
+        cursor.execute("SELECT * FROM goals WHERE id = %s", (goal_id,))
+        goal = cursor.fetchone()
+        if not goal:
+            return jsonify({"error": "Goal not found"}), 404
+        # Update goal status to completed (1)
+        cursor.execute("UPDATE goals SET completed = 1, status = 'ARCHIVED' WHERE id = %s", (goal_id,))
+        db.get_db().commit()
+        cursor.close()
 
+        return jsonify({"message": "Goal marked as completed successfully"}), 200
+    except Error as e: 
+        return jsonify({"error": str(e)}), 500
+    
+@goals.route("/subgoals/<int:subgoal_id>/complete", methods=["PUT"])
+def mark_subgoal_complete(subgoal_id):
+    try:
+        cursor = db.get_db().cursor()
+        cursor.execute("SELECT * FROM subgoals WHERE id = %s", (subgoal_id,))
+        subgoal = cursor.fetchone()
+        if not subgoal:
+            return jsonify({"error": "Subgoal not found"}), 404
+        # Update goal status to completed (1)
+        cursor.execute("UPDATE subgoals SET completed = 1, status = 'ARCHIVED' WHERE id = %s", (subgoal_id,))
+        db.get_db().commit()
+        cursor.close()
+
+        return jsonify({"message": "Subgoal marked as completed successfully"}), 200
+    except Error as e: 
+        return jsonify({"error": str(e)}), 500
+
+
+@goals.route("/creategoals", methods=["POST"])
+def add_goal():
+    try:
+        data = request.get_json()
+        user_id = data.get("userID")
+        title = data.get("title")
+        notes = data.get("notes")
+        status = data.get("status", "ACTIVE")
+        priority = data.get("priority", "low")
+        schedule = data.get("schedule")  # YYYY-MM-DD
+
+        cursor = db.get_db().cursor()
+        query = """
+            INSERT INTO goals (userId, title, notes, status, priority, schedule)
+            VALUES (%s, %s, %s, %s, %s, %s)
+        """
+        cursor.execute(query, (user_id, title, notes, status, priority, schedule))
+        db.get_db().commit()
+        cursor.close()
+
+        return jsonify({"message": "Goal added successfully"}), 200
+
+    except Error as e:
+        return jsonify({"error": str(e)}), 500
 

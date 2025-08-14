@@ -1,169 +1,175 @@
 import logging
 logger = logging.getLogger(__name__)
-
+logging.basicConfig(format='%(filename)s:%(lineno)s:%(levelname)s -- %(message)s', level=logging.INFO)
+from modules.nav import SideBarLinks
 import streamlit as st
+import requests
 import pandas as pd
 import plotly.express as px
-import plotly.graph_objects as go
 
-
-st.set_page_config(layout='wide')
-
-# Show appropriate sidebar links for the role of the currently logged in user
-#SideBarLinks()
+st.set_page_config(layout = 'wide')
+st.session_state['authenticated'] = False
+SideBarLinks(show_home=True)
 
 # Header
-st.title("📈 GOOD MORNING, JACK!")
-st.write("*Financial Analyst Dashboard*")
+st.title("🛠️ Whats up, Jack?")
 
-# Create main layout: left column (goals) and right column (daily actions + charts)
+# Create main layout: left column (system issues) and right column (quick actions + charts)
 col1, col2 = st.columns([2, 1])
 
+
+
 with col1:
-    st.write("### 🏢 COMPANY GOALS")
-    
-    # Goal cards that look like the wireframe
-    with st.container():
-        goal1_col1, goal1_col2 = st.columns([3, 1])
-        with goal1_col1:
-            st.write("**GOAL #1** 🎯 *High Priority*")
-            st.write("Increase Meta Revenue by 5%")
-            st.write("Phase: Q4 Analysis")
-            st.progress(0.7)
-        with goal1_col2:
-            st.write("📊")
-            st.write("⚙️")
-    
-    st.write("---")
-    
-    with st.container():
-        goal2_col1, goal2_col2 = st.columns([3, 1])
-        with goal2_col1:
-            st.write("**GOAL #2** 📊 *High Priority*")
-            st.write("Optimize Team Productivity")
-            st.write("Phase: Employee Analysis")
-            st.progress(0.4)
-        with goal2_col2:
-            st.write("📊")
-            st.write("⚙️")
-    
-    st.write("---")
-    
-    with st.container():
-        goal3_col1, goal3_col2 = st.columns([3, 1])
-        with goal3_col1:
-            st.write("**GOAL #3** 💰 *Medium Priority*")
-            st.write("Reduce Operational Costs")
-            st.write("Phase: Budget Review")
-            st.progress(0.6)
-        with goal3_col2:
-            st.write("📊")
-            st.write("⚙️")
-    
-    st.write("---")
-    
-    with st.container():
-        goal4_col1, goal4_col2 = st.columns([3, 1])
-        with goal4_col1:
-            st.write("**GOAL #4** 🎯 *Low Priority*")
-            st.write("Implement New KPI Dashboard")
-            st.write("Phase: Requirements Gathering")
-            st.progress(0.2)
-        with goal4_col2:
-            st.write("📊")
-            st.write("⚙️")
+    st.write("### Company Goals")
+
+    goals = requests.get('http://web-api:4000/goals/active').json()
+    with col1:
+        goals = requests.get('http://web-api:4000/goals/active').json()
+
+        # Use explicit mapping instead of list(item.values())
+        goals = [
+            [
+                item.get("id"),      # 0 - goal_id
+                item.get("title"),   # 1 - title
+                item.get("notes"),   # 2 - notes/description
+                item.get("schedule") # 3 - schedule
+            ]
+            for item in goals
+        ]
+
+        st.write("---")
+        goal_col1, goal_col2 = st.columns([3, 1])
+        with goal_col1: st.write("**Goal**")
+        with goal_col2: st.write("**Completion**")
+        st.write("---")
+
+        for goal in goals:
+            goal_id, title, notes, schedule = goal
+
+            with st.container():
+                goal_col1, goal_col2 = st.columns([3, 1])
+
+                with goal_col1:
+                    st.write(f":red[**{title}**]")   # Title on top
+                    if notes:
+                        st.write(notes)              # Notes/desc underneath
+
+                with goal_col2:
+                    # Use unique keys per goal
+                    if st.button("Mark Complete", key=f"complete_{goal_id}"):
+                        try:
+                            response = requests.put(f'http://web-api:4000/goals/goals/{goal_id}/complete')
+                            if response.status_code == 200:
+                                st.success("Goal marked as completed!")
+                                st.rerun()  # Refresh page
+                            else:
+                                st.error(f"Error: {response.status_code}")
+                        except Exception as e:
+                            st.error(f"Error updating goal: {str(e)}")
+
+                st.write("---")
+
+
+st.title("📊 Goal Status Overview")
+
+# Fetch goals from API
+goals = requests.get('http://web-api:4000/goals/all').json()  # or endpoint for all goals
+
+# Convert to DataFrame
+df = pd.DataFrame(goals)
+
+# Ensure 'status' column exists
+if 'status' not in df.columns:
+    df['status'] = 'ACTIVE'  # default fallback
+
+# Count goals per status
+status_counts = df['status'].value_counts().reset_index()
+status_counts.columns = ['Status', 'Count']
+
+# Optional: color mapping for clarity
+color_map = {
+    'ACTIVE': 'orange',
+    'PLANNED': 'blue',
+    'ON ICE': 'gray',
+    'ARCHIVED': 'green'
+}
+
+# Create bar chart
+fig = px.bar(
+    status_counts,
+    x='Status',
+    y='Count',
+    color='Status',
+    color_discrete_map=color_map,
+    title='Goals by Status'
+)
+
+st.plotly_chart(fig, use_container_width=True)
+
+
+st.title("📈 Goals vs Deadline")
+
+goals = requests.get('http://web-api:4000/goals/all').json()
+
+df = pd.DataFrame(goals)
+
+df['schedule'] = pd.to_datetime(df.get('schedule', pd.NaT))
+df['priority'] = df.get('priority', 'low')
+df['status'] = df.get('status', 'PLANNED')
+df['title'] = df.get('title', 'Untitled')
+
+priority_map = {'critical': 4, 'high': 3, 'medium': 2, 'low': 1}
+df['priority_num'] = df['priority'].map(priority_map)
+
+# Scatter plot
+fig = px.scatter(
+    df,
+    x='schedule',
+    y='priority_num',  # numeric representation for vertical positioning
+    color='status',
+    hover_data=['title', 'notes', 'priority'],
+    labels={'priority_num': 'Priority', 'schedule': 'Deadline'},
+    title='Goals vs Deadline by Priority and Status',
+    height=500
+)
+
+st.plotly_chart(fig, use_container_width=True)
+
+# Fetch all goals
+all_goals = requests.get('http://web-api:4000/goals/all').json()
+
+# Filter ON ICE goals
+on_ice_goals = [goal for goal in all_goals if goal.get('status') == 'ON ICE']
 
 with col2:
-    st.write("### ⚡ QUICK ACTIONS")
-    
-    # Action buttons in a 2x2 grid like the wireframe
-    action_col1, action_col2 = st.columns(2)
-    
-    with action_col1:
-        if st.button("📈 Financial Insights", use_container_width=True):
-            st.switch_page('pages/01_Financial_Goals.py')
-    
-    st.write("---")
-    
-    # Financial Charts Section
-    st.write("### 📊 FINANCIAL OVERVIEW")
-    
-    # Sample data for financial charts
-    revenue_data = pd.DataFrame({
-        'Month': ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'],
-        'Revenue': [85, 88, 92, 89, 95, 98],
-        'Target': [90, 90, 90, 90, 90, 90]
-    })
-    
-    # Revenue trend chart
-    fig_revenue = px.line(revenue_data, x='Month', y=['Revenue', 'Target'], 
-                         title="Revenue vs Target (Millions $)",
-                         color_discrete_map={'Revenue': '#1f77b4', 'Target': '#ff7f0e'})
-    fig_revenue.update_layout(height=200, showlegend=True, 
-                             title_font_size=12, margin=dict(l=0, r=0, t=30, b=0))
-    st.plotly_chart(fig_revenue, use_container_width=True)
-    
-    # Goal completion pie chart
-    completion_data = pd.DataFrame({
-        'Status': ['Completed', 'In Progress', 'Not Started'],
-        'Count': [8, 12, 3]
-    })
-    
-    fig_pie = px.pie(completion_data, values='Count', names='Status', 
-                     title="Goal Completion Status",
-                     color_discrete_map={'Completed': '#2ca02c', 
-                                       'In Progress': '#ff7f0e', 
-                                       'Not Started': '#d62728'})
-    fig_pie.update_layout(height=200, title_font_size=12, 
-                         margin=dict(l=0, r=0, t=30, b=0))
-    st.plotly_chart(fig_pie, use_container_width=True)
+    st.write("### ❄️ On Ice Goals")
 
-# Bottom metrics section
-st.write("---")
-st.write("### 📈 KEY METRICS")
+    for goal in on_ice_goals:
+        goal_id = goal['id']
+        title = goal['title']
+        notes = goal.get('notes', '')
 
-metric_col1, metric_col2, metric_col3, metric_col4 = st.columns(4)
+        with st.container():
+            # Optional: smaller layout
+            col_checkbox, col_text = st.columns([1, 4])
 
-with metric_col1:
-    st.metric(
-        label="Revenue Growth", 
-        value="5.2%",
-        delta="0.8% vs target"
-    )
+            with col_checkbox:
+                # Checkbox to optionally mark as complete
+                checked = st.checkbox("", key=f"onice_{goal_id}")
+                if checked:
+                    try:
+                        response = requests.put(f"http://web-api:4000/goals/goals/{goal_id}/complete")
+                        if response.status_code == 200:
+                            st.success("Goal moved to archived!")
+                            st.experimental_rerun()  # refresh so it disappears
+                        else:
+                            st.error(f"Error: {response.status_code}")
+                    except Exception as e:
+                        st.error(f"Error: {str(e)}")
 
-with metric_col2:
-    st.metric(
-        label="Goals Completed", 
-        value="8/23",
-        delta="2 this week"
-    )
+            with col_text:
+                st.write(f"**{title}**")
+                if notes:
+                    st.write(notes)
 
-with metric_col3:
-    st.metric(
-        label="Team Efficiency", 
-        value="87%",
-        delta="12% improvement"
-    )
-
-with metric_col4:
-    st.metric(
-        label="Budget Variance", 
-        value="-$2.1M",
-        delta="Under budget"
-    )
-
-# Action buttons at bottom
-st.write("---")
-bottom_col1, bottom_col2, bottom_col3 = st.columns(3)
-
-with bottom_col1:
-    if st.button("🚨 Create New Company Goal", type="primary", use_container_width=True):
-        st.switch_page('pages/Create_Company_Goal.py')
-
-with bottom_col2:
-    if st.button("🗑 Delete Company Goal", type="primary", use_container_width=True):
-        st.switch_page('pages/Delete_Comapny_Goal.py')
-
-with bottom_col3:
-    if st.button("🏠 Return To Dashboard", type="primary", use_container_width=True):
-        st.switch_page('HomePage.py')
+            st.write("---")

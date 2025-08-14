@@ -76,8 +76,8 @@ As a system admin, I need to see bugs that people report.
 As a system admin, I need to mark bugs as resolved.
 
 ## 4 (Jack)
-As a financial analyst, I need to set subgoals with checkboxes to complete our goal on time.
+As a financial analyst, I want to see my next goals to hit.
 
-As a financial analyst, I want to add new company goals. 
+As a financial analyst, I want to see charts to easily track goals and deadlines.
 
-As a financial analyst, I want to mark company goals as completed. (use jose template)
+As a financial analyst, I want to mark company goals as completed. 
