@@ -82,7 +82,7 @@ col1, col2 = st.columns([2, 1])
 
 # ========== LEFT: Active Projects + Archive ==========
 with col1:
-    title_col1, title_col2, title_col3 = st.columns([6,1,1])
+    title_col1, title_col2, title_col3, title_col4 = st.columns([4,1, 1,1])
     with title_col1: st.write("### Active Projects")
     with title_col2:
         if st.button('Archive', 
@@ -95,7 +95,13 @@ with col1:
                 type='primary', 
                 use_container_width=True,
                 help="Return Home"):
-            st.switch_page('pages/Home.py')
+            st.switch_page('Home.py')
+    with title_col4:
+        if st.button("Add Goal", 
+                type='primary', 
+                use_container_width=True,
+                help="Add Goal"):
+            st.switch_page('pages/Add_New_Project.py')        
 
     goals = fetch_active_goals()
 

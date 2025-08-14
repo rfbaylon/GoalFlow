@@ -21,7 +21,7 @@ PLEASE LABEL WHERE YOUR PUT/POST/DELETE ROUTES ARE
     - [x] Jose Feature 2
         - 3.1 Completed by Ryan :D
     - [x] Jose Feature 3
-        - 3.6 Completed
+        - 3.6 Completed by ryan **PUT**
 
 - [ ] Jack Landing Page
     - [ ] Jack Feature 1
@@ -29,15 +29,18 @@ PLEASE LABEL WHERE YOUR PUT/POST/DELETE ROUTES ARE
     - [ ] Jack Feature 3
 
 - [ ] Alan Landing Page
-    - [ ] Alan Feature 1
+    - [x] Alan Feature 1 **POST**
+        - 2.3 done by ry
     - [ ] Alan Feature 2
     - [ ] Alan Feature 3
 
 - [ ] Avery Landing Page
-    - [x] Avery Feature 1
-        - 1.1 Done by Ryan. I interpreted it as just having subgoals, though that shouldnt be an issue.
-    - [ ] Avery Feature 2
-    - [ ] Avery Feature 3
+    - [x] Avery Feature 1 **PUT**
+        - 1.1 Done by ryan
+    - [x] Avery Feature 2
+        - 1.2 done by ryan **DELETE**
+    - [x] Avery Feature 3
+        - done by someone **POST**
 
 
 TOTAL ROUTES:

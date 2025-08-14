@@ -4,16 +4,23 @@ import requests
 from modules.nav import SideBarLinks
 SideBarLinks(show_home=True)
 
-st.title("Add New Project")
+c1, c2 = st.columns([4, 1])
+with c1: 
+    st.title("Add New Project")
+with c2:
+    if st.button("Homepage", help="Return Home", type="primary", use_container_width=True):
+        st.switch_page('Home.py')
+
 
 # Form inputs
-userID = st.text_input("User ID")
+userID = st.text_input(f"User ID :red[*]")
+title = st.text_input("Title :red[*]")
+schedule = st.text_input("Deadline (YYYY-MM-DD) :red[*]")
 tagID = st.text_input("Tag ID")
-title = st.text_input("Title")
 notes = st.text_area("Notes")
-status = st.selectbox("Status", ["onIce", "inProgress", "completed"])
+status = st.selectbox("Status", ['ON ICE', 'PLANNED', 'ACTIVE', 'ARCHIVED'])
 priority = st.slider("Priority", 1, 4, 4)
-schedule = st.text_input("Deadline")
+
 
 if st.button("Submit"):
     project_data = {
@@ -28,7 +35,7 @@ if st.button("Submit"):
 
     try:
         # Replace this URL with your actual backend API URL
-        response = requests.post("http://localhost:4000/goals", json=project_data)
+        response = requests.post("http://web-api:4000/goals/create", json=project_data)
 
         if response.status_code == 200:
             st.success("Project added successfully!")
