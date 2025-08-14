@@ -110,60 +110,57 @@ with col2:
                 st.write(f"{parent_goal_title}")
 
     st.write("---")
-def fetch_tags(name: str | None = None, color: str | None = None):
-   """GET /tags/get_tag?name=&color="""
-   params = {}
-   if name: params["name"] = name.strip()
-   if color: params["color"] = color.strip()
-   try:
-       r = requests.get(f"{API_BASE}/tags/get_tag", params=params, timeout=5)
-       if r.ok:
-           return r.json()
-       st.error(f"Failed to load tags: {r.status_code}")
-   except Exception as e:
-       st.error(f"Error contacting tags API: {e}")
-   return []
 
+# ---------------------- API Calls ----------------------
+
+def fetch_tags(name: str | None = None, color: str | None = None):
+    params = {}
+    if name: params["name"] = name.strip()
+    if color: params["color"] = color.strip()
+    try:
+        r = requests.get("http://web-api:4000/tags/get_tag", params=params, timeout=5)
+        if r.ok:
+            return r.json()
+        st.error(f"Failed to load tags: {r.status_code}")
+    except Exception as e:
+        st.error(f"Error contacting tags API: {e}")
+    return []
 
 def create_tag_api(name: str, color: str):
-   """POST /tags/create_tag  body: {name, color}"""
-   try:
-       payload = {"name": (name or "").strip(), "color": (color or "").strip()}
-       r = requests.post(f"{API_BASE}/tags/create_tag", json=payload, timeout=5)
-       if 200 <= r.status_code < 300:
-           if r.headers.get("content-type","").startswith("application/json"):
-               return True, r.json()
-           return True, r.text
-       return False, f"{r.status_code} {r.text[:200]}"
-   except Exception as e:
-       return False, str(e)
-
+    try:
+        payload = {"name": (name or "").strip(), "color": (color or "").strip()}
+        r = requests.post("http://web-api:4000/tags/create_tag", json=payload, timeout=5)
+        if 200 <= r.status_code < 300:
+            if r.headers.get("content-type", "").startswith("application/json"):
+                return True, r.json()
+            return True, r.text
+        return False, f"{r.status_code} {r.text[:200]}"
+    except Exception as e:
+        return False, str(e)
 
 def rename_tag_api(tag_id: int, new_name: str | None = None, new_color: str | None = None):
-   """PUT /tags/rename_tag/<id>  body: {name?, color?}"""
-   body = {}
-   if new_name: body["name"] = new_name.strip()
-   if new_color: body["color"] = new_color.strip()
-   if not body:
-       return False, "No fields to update"
-   try:
-       r = requests.put(f"{API_BASE}/tags/rename_tag/{tag_id}", json=body, timeout=5)
-       if 200 <= r.status_code < 300:
-           return True, r.json() if r.headers.get("content-type","").startswith("application/json") else r.text
-       return False, f"{r.status_code} {r.text[:200]}"
-   except Exception as e:
-       return False, str(e)
-
+    body = {}
+    if new_name: body["name"] = new_name.strip()
+    if new_color: body["color"] = new_color.strip()
+    if not body:
+        return False, "No fields to update"
+    try:
+        r = requests.put(f"http://web-api:4000/tags/rename_tag/{tag_id}", json=body, timeout=5)
+        if 200 <= r.status_code < 300:
+            return True, r.json() if r.headers.get("content-type", "").startswith("application/json") else r.text
+        return False, f"{r.status_code} {r.text[:200]}"
+    except Exception as e:
+        return False, str(e)
 
 def delete_tag_api(tag_id: int):
-   """DELETE /tags/delete_tag/<id>"""
-   try:
-       r = requests.delete(f"{API_BASE}/tags/delete_tag/{tag_id}", timeout=5)
-       if r.status_code in (200, 202, 204):
-           return True, r.text
-       return False, f"{r.status_code} {r.text[:200]}"
-   except Exception as e:
-       return False, str(e)
+    try:
+        r = requests.delete(f"http://web-api:4000/tags/delete_tag/{tag_id}", timeout=5)
+        if r.status_code in (200, 202, 204):
+            return True, r.text
+        return False, f"{r.status_code} {r.text[:200]}"
+    except Exception as e:
+        return False, str(e)
+
 
 
 #Tags code
