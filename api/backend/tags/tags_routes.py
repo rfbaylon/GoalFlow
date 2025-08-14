@@ -64,8 +64,8 @@ def create_tag():
         cursor.execute(
             query,
             (
-                data.get["name"],
-                data["color"],
+                data.get("name"),
+                data("color"),
             ),
         )
 
