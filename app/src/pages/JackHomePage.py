@@ -262,11 +262,6 @@ def _try_paths_json_2xx(method, paths, **kwargs):
         raise last_exc
     raise RuntimeError(f"No {method} path returned 2xx JSON (paths tried: {paths})")
 
-def api_create_tag(name: str, color: str):
-    payload = {"name": (name or "").strip(), "color": (color or "").strip()}
-    # Your blueprint has route "/create_tag". If app registered it with url_prefix="/tags", full path becomes "/tags/create_tag".
-    return _try_paths_json_2xx("POST", ["/create_tag", "/tags/create_tag"], json=payload)
-
 def api_delete_tag(tag_id: int):
     pid = int(tag_id)
     # Your blueprint has "/delete_tag/<id>". With url_prefix="/tags" it becomes "/tags/delete_tag/<id>".
