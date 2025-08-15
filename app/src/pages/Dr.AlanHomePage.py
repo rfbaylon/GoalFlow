@@ -65,6 +65,7 @@ with col1:
         item.get("status"),     # 5 - status
         ]
         for item in projects
+        # if item.get("status") == "ACTIVE" and item.get("completed") in (0, False, None) # testing to filter
     ]
 
     # HEADER
@@ -78,7 +79,14 @@ with col1:
         st.markdown("**Completion &**  \n**Change Priority**")
     st.write("---")
 
-    for project in projects:
+    # Keep only active, incomplete projects
+    filtered_projects = [
+        p for p in projects
+        if (p[4] in (0, False) and p[5] == "ACTIVE")
+    ]
+    # testing to filter
+
+    for project in filtered_projects: # change this backt projects
         project_id, title, notes, priority, completed, status = project
 
         with st.container():
