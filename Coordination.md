@@ -28,7 +28,7 @@ DUE FRIDAY AT 5PM.
 
 PLEASE LABEL WHERE YOUR PUT/POST/DELETE ROUTES ARE
 
-- [ ] Jose Landing Page
+- [x] Jose Landing Page
     - [x] Jose Feature 1
         - 3.4 Completed by Ryan
     - [x] Jose Feature 2
@@ -50,7 +50,7 @@ PLEASE LABEL WHERE YOUR PUT/POST/DELETE ROUTES ARE
         - 2.2 
     - [ ] Alan Feature 3
 
-- [ ] Avery Landing Page
+- [fix_goal_page] Avery Landing Page
     - [x] Avery Feature 1 **PUT**
         - 1.1 Done by ryan
     - [x] Avery Feature 2

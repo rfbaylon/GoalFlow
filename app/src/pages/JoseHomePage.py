@@ -47,10 +47,16 @@ with col1:
                 st.write(bug[4]) #desc
             with bug_col2:
                 p = bug[3]
-                if p == "critical": st.write(f":red[**{p}!**]")
-                if p == "high": st.write(f":orange[**{p}**]")
-                if p == "medium": st.write(f":green[**{p}**]")
-                if p == "low": st.write(f":blue[**{p}**]")
+                if p == "critical":
+                    st.markdown(f":red[**🔴 Critical!**]")
+                elif p == "high":
+                    st.markdown(f":orange[**🟠 High**]")
+                elif p == "medium":
+                    st.markdown("<span style='color:#DAA520'><strong>🟡 Medium</strong></span>", unsafe_allow_html=True)
+                elif p == "low":
+                    st.markdown(f":green[**🟢 Low**]")
+                else:
+                    st.write(p)
             with bug_col3:
                 if bug[0] == 0:
                     if st.button("Mark Complete", key=f"complete_{bug[2]}"):
