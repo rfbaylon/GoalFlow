@@ -107,83 +107,16 @@ def archive_bug_report(bug_report_id):
     except Error as e:
         return jsonify({"error": str(e)}), 500
     
-@support.route("/post_reply/<int:user_id>", methods=["GET"])
-def get_post_replies(user_id):
+    
+@support.route("/appstats", methods=["GET"])
+def get_appstats():
     try:
         cursor = db.get_db().cursor()
-
-        # Get NGO details
-        cursor.execute("SELECT * FROM post_reply WHERE userId = %s", (user_id,))
-        post_rows = cursor.fetchall()
-
-        if not post_rows:
-            return jsonify({"error": "no replies from user"}), 404
-
-        columns = [col[0] for col in cursor.description]
-        post = dict(zip(columns, post_rows))
-
+        query = "SELECT userId, registeredAt FROM user_data;"
+        cursor.execute(query)
+        stats = cursor.fetchall()
         cursor.close()
-        return jsonify(post), 200
-    
+        return jsonify(stats), 200
+
     except Error as e:
         return jsonify({"error": str(e)}), 500
-    
-@support.route("/post_reply", methods=["POST"])
-def create_post_reply():
-    try:
-        data = request.get_json()
-
-        # Validate required fields
-        required_fields = ["userId", "postId", "title", "createdAt", "tag"]
-        for field in required_fields:
-            if field not in data:
-                return jsonify({"error": f"Missing required field: {field}"}), 400
-
-        cursor = db.get_db().cursor()
-
-        query = """
-        INSERT INTO post_reply (userId, postId, title, createdAt, publishedAt, content, tag)
-        VALUES (%s, %s, %s, %s, %s, %s, %s)
-        """
-        cursor.execute(
-            query,
-            (
-                data["userId"],
-                data["postId"],
-                data["title"],
-                data["createdAt"],
-                data.get("publishedAt"),
-                data.get("content"),
-                data["tag"]
-            ),
-        )
-
-        db.get_db().commit()
-        new_reply_id = cursor.lastrowid
-        cursor.close()
-
-        return (
-            jsonify({"message": "post reply created successfully", "reply_id": new_reply_id}),
-            201,
-        )
-    except Error as e:
-        return jsonify({"error": str(e)}), 500
-
-@support.route("/post_reply/<int:post_reply_id>", methods = ["DELETE"])
-def delete_tags(post_reply_id):
-    try:
-        cursor = db.get_db().cursor()
-        
-        cursor.execute("SELECT * FROM post_reply WHERE id = %s", (post_reply_id,))
-        support = cursor.fetchone()
-        if not support:
-            return jsonify({"error": "post reply not found"}), 404
-        
-        cursor.execute("DELETE FROM post_reply WHERE id = %s", (post_reply_id,))
-        db.get_db().commit()
-        cursor.close()
-
-        return jsonify({"message": "post reply deleted successfully"}), 200
-    except Error as e: 
-        return jsonify({"error": str(e)}), 500
-    

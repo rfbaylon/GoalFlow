@@ -83,7 +83,7 @@ with col1:
     ]
 
     # SUBGOALS
-    subgoals = requests.get('http://web-api:4000/goals/subgoals').json()
+    subgoals = requests.get('http://web-api:4000/habits/subgoals').json()
     subgoals = [
         [item.get("goalsId"), item.get("title")]
         for item in subgoals

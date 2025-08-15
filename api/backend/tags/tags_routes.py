@@ -132,24 +132,6 @@ def rename_tag(tag_id):
         return jsonify({"message": "tag updated successfully"}), 200
     except Error as e:
         return jsonify({"error": str(e)}), 500
-    
-@tags.route("/tags/<int:tag_id>", methods=["GET"])  # <-- FIXED leading slash
-def get_tag(tag_id):
-    try:
-        cursor = db.get_db().cursor()
-        cursor.execute("SELECT * FROM tags WHERE id = %s", (tag_id,))
-        tag_row = cursor.fetchone()
-
-        if not tag_row:
-            return jsonify({"error": "tag not found"}), 404
-
-        columns = [col[0] for col in cursor.description]
-        tag = dict(zip(columns, tag_row))
-
-        cursor.close()
-        return jsonify(tag), 200
-    except Error as e:
-        return jsonify({"error": str(e)}), 500
 
 @tags.route("/goals/<int:goal_id>/tags", methods=["GET"])
 def get_goal_tags(goal_id):

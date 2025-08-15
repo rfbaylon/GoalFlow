@@ -19,43 +19,6 @@ def get_active_goals():
     except Error as e:
         current_app.logger.error(f'Database error in get_active_goals: {str(e)}')
         return jsonify({"error": str(e)}), 500
-    
-
-
-# Route used on Dr. Alan's home page to get active goals with priority.
-@goals.route("/user/<int:user_id>/active_and_priority", methods=["GET"])
-def get_user_active_goals_with_priority(user_id):
-    try:
-        cursor = db.get_db().cursor()
-        cursor.execute(
-            "SELECT id, title, notes, priority, completed "
-            "FROM goals g "
-            "WHERE g.status = 'ACTIVE' AND g.userId = %s;",
-            (user_id,)
-        )
-        goals_data = cursor.fetchall()
-        cursor.close()
-        return jsonify(goals_data), 200
-
-    except Error as e:
-        current_app.logger.error(f'Database error in get_user_active_goals_with_priority: {str(e)}')
-        return jsonify({"error": str(e)}), 500
-
-
-
-@goals.route("/archive", methods=["GET"])
-def get_archive():
-    try:
-        cursor = db.get_db().cursor()
-        query = "SELECT id, title, notes, schedule, completedAt FROM goals g WHERE g.status = 'ARCHIVED';"
-        cursor.execute(query)
-        goals_data = cursor.fetchall()
-        cursor.close()
-        return jsonify(goals_data), 200
-
-    except Error as e:
-        current_app.logger.error(f'Database error in get_active_goals: {str(e)}')
-        return jsonify({"error": str(e)}), 500
 
 @goals.route("/all", methods=["GET"])
 def get_all_goals():
@@ -69,24 +32,6 @@ def get_all_goals():
 
     except Error as e:
         current_app.logger.error(f'Database error in get_all_goals: {str(e)}')
-        return jsonify({"error": str(e)}), 500
-
-@goals.route("/subgoals", methods=["GET"])
-def get_subgoal():
-    try:
-        current_app.logger.info('Starting get_all_goals request')
-        cursor = db.get_db().cursor()
-        query = "SELECT sg.goalsId, sg.title FROM subgoals sg;"
-        current_app.logger.debug(f'Executing query: {query}')
-        cursor.execute(query)
-        goals_data = cursor.fetchall()
-        cursor.close()
-
-        current_app.logger.info(f'Successfully retrieved {len(goals_data)} NGOs')
-        return jsonify(goals_data), 200
-
-    except Error as e:
-        current_app.logger.error(f'Database error in get_all_ngos: {str(e)}')
         return jsonify({"error": str(e)}), 500
     
 
@@ -164,20 +109,3 @@ def add_goal():
     except Error as e:
         return jsonify({"error": str(e)}), 500
 
-# Abandoned as we dont have the data to back this upn :(
-# @goals.route("/active/employees", methods=["GET"])
-# def get_active_goals():
-#     try:
-#         cursor = db.get_db().cursor()
-#         query = """SELECT g.id, g.title, g.notes, g.schedule, u.id, u.
-#         FROM goals g JOIN users u ON g.userId = u.id 
-#         WHERE g.status = 'ACTIVE' AND
-#         GROUPBY u.id;"""
-#         cursor.execute(query)
-#         goals_data = cursor.fetchall()
-#         cursor.close()
-#         return jsonify(goals_data), 200
-
-#     except Error as e:
-#         current_app.logger.error(f'Database error in get_active_goals: {str(e)}')
-#         return jsonify({"error": str(e)}), 500
