@@ -51,7 +51,7 @@ with st.form("delete_project_form"):
     st.write("")
     
     # Initialize confirm_delete
-    confirm_delete = False
+    confirm_delete = True
     
     if selected_project != "Select a project...":
         # Find the full project info
@@ -89,7 +89,7 @@ with st.form("delete_project_form"):
         "🗑️ Delete Project", 
         type="primary",
         use_container_width=True,
-        disabled=not confirm_delete or selected_project == "Select a project..."
+       # disabled=not confirm_delete or selected_project == "Select a project..."
     )
 
 # --- Handle actions ---

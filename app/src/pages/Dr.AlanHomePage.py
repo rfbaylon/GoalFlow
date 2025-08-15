@@ -62,6 +62,7 @@ with col1:
         item.get("notes"),      # 2 - notes/description
         item.get("priority"),   # 3 - priority
         item.get("completed"),  # 4 - completed
+        item.get("status"),     # 5 - status
         ]
         for item in projects
     ]
@@ -78,7 +79,7 @@ with col1:
     st.write("---")
 
     for project in projects:
-        project_id, title, notes, priority, completed = project
+        project_id, title, notes, priority, completed, status = project
 
         with st.container():
             pc1, pc2, pc3 = st.columns([2, 1, 1])
@@ -146,7 +147,7 @@ with col1:
 
                 # 5. And still allow marking complete
                 st.write("")  # spacer
-                if completed == 0:
+                if completed == 0 and status == "ACTIVE":
                     if st.button("Mark Complete", key=f"complete_{project_id}"):
                         try:
                             response = requests.put(f'http://web-api:4000/goals/{project_id}/complete', timeout=5)

@@ -30,7 +30,7 @@ def get_user_active_goals_with_priority(user_id):
         cursor.execute(
             "SELECT id, title, notes, priority, completed, schedule "
             "FROM goals g "
-            "WHERE g.status = 'ACTIVE' AND g.userId = %s;",
+            "WHERE g.userId = %s;",
             (user_id,)
         )
         goals_data = cursor.fetchall()
