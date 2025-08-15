@@ -1,8 +1,18 @@
+#                   ===== INITIAL IMPORTS =====                   #
 # app/pages/AveryHomePage.py
-
 import logging
+
+logger = logging.getLogger(__name__)
+logging.basicConfig(
+    format='%(filename)s:%(lineno)s:%(levelname)s -- %(message)s', 
+    level=logging.INFO)
+
+from modules.nav import SideBarLinks
 import streamlit as st
 import requests
+import pandas as pd
+import plotly.express as px
+import re
 from datetime import datetime, date, time
 
 logging.basicConfig(
@@ -13,9 +23,22 @@ logger = logging.getLogger(__name__)
 
 API_URL = "http://web-api:4000"
 
-# --------------------------
-# helpers
-# --------------------------
+
+
+
+
+#                   ===== UI LAYOUT =====                   #
+st.set_page_config(layout='wide')
+st.session_state['authenticated'] = False
+SideBarLinks(show_home=True)
+st.session_state.setdefault("authenticated", False)
+st.session_state.setdefault("role", "guest")
+
+
+
+
+
+#                   ===== HELPERS =====                   #
 def _parse_schedule(s: str | None):
     if not s:
         return None
@@ -77,39 +100,52 @@ def get_first_bug_id():
     except Exception:
         return None
 
-# --------------------------
-# UI
-# --------------------------
-st.set_page_config(layout="wide", page_title="Avery — Home")
 
+
+
+
+#                   ===== PAGE CONTENT =====                   #
+st.set_page_config(layout="wide", page_title="Avery — Home")
 st.title("🎨 Avery — Projects")
+
+
 
 col1, col2 = st.columns([2, 1])
 
+
+
 # ========== LEFT: Active Projects + Archive ==========
 with col1:
-    title_col1, title_col2, title_col3, title_col4 = st.columns([4,1, 1,1])
-    with title_col1: st.write("### Active Projects")
+
+    # SETS THE USER_ID BASED UPON SESSION STATE.
+    user_id = st.session_state.get("user_id")
+    if not user_id:
+        st.error("No user ID found. Please log in or select a user profile.")
+        st.stop()
+    # user_id = 2 # Incase you refresh the page and it "logs you out" or something.
+
+
+    title_col1, title_col2, title_col3, title_col4 = st.columns([4, 1, 1, 1])
+
+    with title_col1: 
+        st.write("### Active Projects")
+
     with title_col2:
-        if st.button('Archive', 
-                    type='primary', 
-                    use_container_width=True,
-                    help="View archived tasks"):
+        if st.button('Archive', type='primary', use_container_width=True, help="View archived tasks"):
             st.switch_page('pages/Archive.py')
+
     with title_col3:
-        if st.button("Homepage", 
-                type='primary', 
-                use_container_width=True,
-                help="Return Home"):
+        if st.button("Homepage", type='primary', use_container_width=True, help="Return Home"):
             st.switch_page('Home.py')
+
     with title_col4:
-        if st.button("Add Goal", 
-                type='primary', 
-                use_container_width=True,
-                help="Add Goal"):
-            st.switch_page('pages/Add_New_Project.py')        
+        if st.button("Add Goal", type='primary', use_container_width=True, help="Add Goal"):
+            st.switch_page('pages/Add_New_Project.py')      
+
 
     goals = fetch_active_goals()
+
+
 
     st.write("---")
     h1, h2, h3 = st.columns([2, 1, 1])
@@ -117,6 +153,8 @@ with col1:
     h2.write("**Due**")
     h3.write("**Actions**")
     st.write("---")
+
+
 
     if not goals:
         st.info("No active projects.")
@@ -164,6 +202,11 @@ with col1:
                             else: st.write(response.status_code)
 
             st.write("---")
+
+            
+
+
+
 
 # ========== RIGHT: Daily Log ==========
 with col2:
