@@ -19,8 +19,6 @@ def get_active_goals():
     except Error as e:
         current_app.logger.error(f'Database error in get_active_goals: {str(e)}')
         return jsonify({"error": str(e)}), 500
-    
-
 
 # Route used on Dr. Alan's home page to get active goals with priority.
 @goals.route("/user/<int:user_id>/active_and_priority", methods=["GET"])

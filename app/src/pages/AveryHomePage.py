@@ -41,9 +41,15 @@ def _due_label(d):
     prefix = "D-" if days >= 0 else "D+"
     return f"{prefix}{abs(days)} · {d.strftime('%b %d, %Y')}"
 
+user_id = st.session_state.get("user_id")
+if not user_id:
+    st.error("No user ID found. Please log in or select a user profile.")
+    st.stop()
+user_id = 1 # Incase you refresh the page and it "logs you out" or something.
+
 def fetch_active_goals():
     try:
-        r = requests.get(f"{API_URL}/goals/active", timeout=5)
+        r = requests.get(f"{API_URL}/goals/user/{user_id}/active_and_priority", timeout=5)
         if r.status_code == 200:
             return r.json()
         st.error(f"Failed to load active goals: {r.status_code}")

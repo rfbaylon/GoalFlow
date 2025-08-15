@@ -75,8 +75,19 @@ st.title("💼 Whats up, Jack?")
 col1, col2 = st.columns([3, 1])
 
 with col1:
+    # SETS THE USER_ID BASED UPON SESSION STATE.
+    user_id = st.session_state.get("user_id")
+    if not user_id:
+        st.error("No user ID found. Please log in or select a user profile.")
+        st.stop()
+    user_id = 4 # Incase you refresh the page and it "logs you out" or something.
     # GOALS
-    goals = requests.get('http://web-api:4000/goals/active').json()
+    try:
+        goals = requests.get(f'http://web-api:4000/goals/user/{user_id}/active_and_priority').json()
+    except Exception as e:
+        st.error(f"Could not fetch goals: {e}")
+        goals = []
+
     goals = [
         [item.get("id"), item.get("title"), item.get("notes"), item.get("schedule")]
         for item in goals
@@ -153,8 +164,8 @@ with col2:
     st.header("📊 Goal Status Overview")
 
     # Fetch goals for charts
-    goals_all = requests.get('http://web-api:4000/goals/all').json()
-    df = pd.DataFrame(goals_all)
+    goals = requests.get(f'http://web-api:4000/goals/user/{user_id}/active_and_priority').json()
+    df = pd.DataFrame(goals)
 
     if 'status' not in df.columns:
         df['status'] = 'ACTIVE'
@@ -183,7 +194,7 @@ with col2:
     # Scatter: goals vs deadline
     st.subheader("Goals vs Deadline")
 
-    df_scatter = pd.DataFrame(goals_all)
+    df_scatter = pd.DataFrame(goals)
     df_scatter['schedule'] = pd.to_datetime(df_scatter.get('schedule', pd.NaT))
     df_scatter['priority'] = df_scatter.get('priority', 'high')
     df_scatter['status'] = df_scatter.get('status', 'PLANNED')
