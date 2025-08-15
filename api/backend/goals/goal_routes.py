@@ -20,6 +20,8 @@ def get_active_goals():
         current_app.logger.error(f'Database error in get_active_goals: {str(e)}')
         return jsonify({"error": str(e)}), 500
 
+
+
 # Route used on Dr. Alan's home page to get active goals with priority.
 @goals.route("/user/<int:user_id>/active_and_priority", methods=["GET"])
 def get_user_active_goals_with_priority(user_id):
@@ -38,6 +40,34 @@ def get_user_active_goals_with_priority(user_id):
     except Error as e:
         current_app.logger.error(f'Database error in get_user_active_goals_with_priority: {str(e)}')
         return jsonify({"error": str(e)}), 500
+    
+
+
+# In your goals.py backend blueprint
+@goals.route("/<int:goal_id>/priority", methods=["PUT"])
+def update_goal_priority(goal_id):
+    try:
+        data = request.get_json()  # Expecting {"priority": "high"} from client
+        if not data or "priority" not in data:
+            return jsonify({"error": "Missing priority in request"}), 400
+
+        new_priority = data["priority"]
+        if new_priority not in ["critical", "high", "medium", "low"]:
+            return jsonify({"error": "Invalid priority value"}), 400
+
+        cursor = db.get_db().cursor()
+        cursor.execute(
+            "UPDATE goals SET priority = %s WHERE id = %s",
+            (new_priority, goal_id)
+        )
+        db.get_db().commit()
+        cursor.close()
+
+        return jsonify({"message": "Priority updated successfully"}), 200
+
+    except Error as e:
+        return jsonify({"error": str(e)}), 500
+
 
 
 
