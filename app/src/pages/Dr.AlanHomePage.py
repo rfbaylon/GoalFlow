@@ -79,14 +79,14 @@ with col1:
         st.markdown("**Completion &**  \n**Change Priority**")
     st.write("---")
 
-    # Keep only active, incomplete projects
-    filtered_projects = [
-        p for p in projects
-        if (p[4] in (0, False) and p[5] == "ACTIVE")
-    ]
-    # testing to filter
+    # # Keep only active, incomplete projects
+    # filtered_projects = [
+    #     p for p in projects
+    #     if (p[4] in (0, False) and p[5] == "ACTIVE")
+    # ]
+    # # testing to filter
 
-    for project in filtered_projects: # change this backt projects
+    for project in projects: # change this backt projects
         project_id, title, notes, priority, completed, status = project
 
         with st.container():
@@ -169,11 +169,11 @@ with col1:
                                 st.success("Project marked as completed!")
                                 st.rerun()
                             else:
-                                st.error(f"Error: {response.status_code}")
+                                st.error(f"Error marking complete: {response.status_code}")
                         except Exception as e:
                             st.error(f"Error updating project: {str(e)}")
-                else:
-                    st.write("✅ Completed")
+
+                            st.write("---")
 
 
         st.write("---")
