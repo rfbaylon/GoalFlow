@@ -6,7 +6,7 @@ from datetime import datetime
 
 habits = Blueprint("habits", __name__)
 
-@habits.route("/create", methods=["POST"])
+@habits.route("/", methods=["POST"])
 def add_habit():
     try:
         data = request.get_json()

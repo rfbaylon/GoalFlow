@@ -238,7 +238,7 @@ with col2:
         if submitted:
             payload = {"userId": int(userId), "title": title.strip(), "notes": notes.strip() or None}
             try:
-                resp = requests.post(f"{API_URL}/habits/create", json=payload, timeout=5)
+                resp = requests.post(f"{API_URL}/habits", json=payload, timeout=5)
                 if 200 <= resp.status_code < 300:
                     st.success("Logged.")
                 else:
@@ -254,31 +254,31 @@ with col2:
     if daily_tasks or st.session_state["habit_logs"]:
         st.write("Recent Logs")
 
-        # # Combine session state logs with API logs
-        # all_logs = st.session_state["habit_logs"] + daily_tasks
+        # Combine session state logs with API logs
+        all_logs = st.session_state["habit_logs"] + daily_tasks
 
-        # for task in all_logs[::-1]:  # show newest first
-        #     task_id = task.get("id") or task.get("task_id")
-        #     title = task.get("title") or "Untitled"
-        #     notes = task.get("notes") or ""
+        for task in all_logs[::-1]:  # show newest first
+            task_id = task.get("id") or task.get("task_id")
+            title = task.get("title") or "Untitled"
+            notes = task.get("notes") or ""
 
-        #     with st.container():
-        #         col_title, col_notes, col_delete = st.columns([3, 3, 2])
-        #         col_title.write(f"**{title}**")
-        #         col_notes.write(notes)
+            with st.container():
+                col_title, col_notes, col_delete = st.columns([3, 3, 2])
+                col_title.write(f"**{title}**")
+                col_notes.write(notes)
 
-        #         if col_delete.button("Delete", key=f"delete_{task_id}"):
-        #             if task_id:
-        #                 try:
-        #                     resp = requests.delete(f"{API_URL}/delete_daily_task/{task_id}", timeout=5)
-        #                     if resp.status_code == 200:
-        #                         st.success("Deleted task.")
-        #                         st.rerun()  # refresh the page
-        #                     else:
-        #                         st.error(f"Failed to delete task: {resp.status_code}")
-        #                 except Exception as e:
-        #                     st.error(f"Error deleting task: {e}")
-        #             else:
-        #                 st.warning("Task not synced to server yet. Removing locally.")
-        #                 st.session_state["habit_logs"].remove(task)
-        #                 st.rerun()
+                if col_delete.button("Delete", key=f"delete_{task_id}"):
+                    if task_id:
+                        try:
+                            resp = requests.delete(f"{API_URL}/delete_daily_task/{task_id}", timeout=5)
+                            if resp.status_code == 200:
+                                st.success("Deleted task.")
+                                st.rerun()  # refresh the page
+                            else:
+                                st.error(f"Failed to delete task: {resp.status_code}")
+                        except Exception as e:
+                            st.error(f"Error deleting task: {e}")
+                    else:
+                        st.warning("Task not synced to server yet. Removing locally.")
+                        st.session_state["habit_logs"].remove(task)
+                        st.rerun()
