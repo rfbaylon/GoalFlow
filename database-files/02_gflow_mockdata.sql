@@ -867,23 +867,23 @@ VALUES
 (16,    16, 'Integrations marketplace',        NULL, 1, 'ON ICE',  'high',      '2025-05-30 09:00:00',    NULL, 0, NULL),
 (17,    17, 'Refactor auth flow',              NULL, 0, 'ACTIVE',  'high',      '2025-06-01 10:30:00',    NULL, 0, '2025-07-30'),
 (18,    18, 'Customer success pilot',          NULL, 0, 'ACTIVE',  'high',      '2025-06-05 11:00:00',    NULL, 0, '2025-08-01'),
-(19,    19, 'Holiday release planning',        NULL, 0, 'PLANNED', 'low',       '2025-06-10 12:00:00',    NULL, 0, '2025-11-15'),
-(20,    20, 'Incident response improvements',  NULL, 0, 'ACTIVE',  'critical',  '2025-06-15 10:00:00',    NULL, 0, '2025-07-01'),
+(19,    4,  'Holiday release planning',        NULL, 0, 'PLANNED', 'low',       '2025-06-10 12:00:00',    NULL, 0, '2025-11-15'),
+(20,    4,  'Incident response improvements',  NULL, 0, 'ACTIVE',  'critical',  '2025-06-15 10:00:00',    NULL, 0, '2025-07-01'),
 (21,    2,  'Research ideas database',         NULL, 0, 'ACTIVE',  'high',      '2025-06-20 09:00:00',    NULL, 0, NULL),
 (22,    22, 'Automate deployments',            NULL, 0, 'ACTIVE',  'high',      '2025-06-25 09:00:00',    NULL, 0, '2025-08-01'),
 (23,    23, 'QA ramp for mobile',              NULL, 0, 'ACTIVE',  'high',      '2025-07-01 10:00:00',    NULL, 0, '2025-09-01'),
 (24,    24, 'Web performance focus',           NULL, 0, 'ACTIVE',  'critical',  '2025-07-05 09:30:00',    NULL, 0, '2025-09-15'),
 (25,    25, 'Compliance readiness',            NULL, 0, 'PLANNED', 'critical',  '2025-07-10 11:00:00',    NULL, 0, '2025-12-01'),
 (26,    26, 'Refactor logging',                NULL, 0, 'ACTIVE',  'medium',    '2025-07-12 09:00:00',    NULL, 0, '2025-08-31'),
-(27,    27, 'Idea harvest',                    NULL, 0, 'ACTIVE',  'low',       '2025-07-15 14:00:00',    NULL, 0, NULL),
+(27,    1,  'Idea harvest',                    NULL, 0, 'ACTIVE',  'low',       '2025-07-15 14:00:00',    NULL, 0, NULL),
 (28,    28, 'Prototype feature A',             NULL, 0, 'ACTIVE',  'low',       '2025-07-16 09:00:00',    NULL, 0, '2025-07-30'),
 (29,    29, 'Stabilize release',               NULL, 0, 'ACTIVE',  'high',      '2025-07-20 09:00:00',    NULL, 0, '2025-08-20'),
-(30,    30, 'Personal blog launch',            NULL, 0, 'ACTIVE',  'low',       '2025-07-22 10:00:00',    NULL, 0, '2025-08-10'),
+(30,    1,  'Personal blog launch',            NULL, 0, 'ACTIVE',  'low',       '2025-07-22 10:00:00',    NULL, 0, '2025-08-10'),
 (31,    31, 'Front-end mastery',               NULL, 0, 'ACTIVE',  'medium',    '2025-07-24 09:00:00',    NULL, 0, '2025-10-01'),
 (32,    2,  'Experiment tracking',             NULL, 0, 'ACTIVE',  'high',      '2025-07-26 09:00:00',    NULL, 0, '2025-09-01'),
 (33,    33, 'Secret scanning',                 NULL, 0, 'ACTIVE',  'critical',  '2025-07-28 14:00:00',    NULL, 0, '2025-08-15'),
 (34,    34, 'UX microcopy baseline',           NULL, 0, 'ACTIVE',  'low',       '2025-07-30 09:00:00',    NULL, 0, '2025-08-15'),
-(35,    35, 'Partner onboarding docs',         NULL, 0, 'ACTIVE',  'high',      '2025-08-01 10:00:00',    NULL, 0, '2025-09-15');
+(35,    4,  'Partner onboarding docs',         NULL, 0, 'ON ICE',  'high',      '2025-08-01 10:00:00',    NULL, 0, '2025-09-15');
 
 
 
