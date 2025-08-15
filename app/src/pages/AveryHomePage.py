@@ -169,21 +169,31 @@ with col1:
 with col2:
     st.write("### Daily Log")
 
+    # Initialize session state if not exists
     if "habit_logs" not in st.session_state:
         st.session_state["habit_logs"] = []
 
+    # Fetch tasks from API
+    def fetch_daily_tasks():
+        try:
+            r = requests.get(f"{API_URL}/get_daily_tasks", params={"userId": user_id}, timeout=5)
+            if r.status_code == 200:
+                return r.json()
+        except Exception as e:
+            st.warning(f"Could not fetch daily tasks: {e}")
+        return []
+
+    daily_tasks = fetch_daily_tasks()
+
+    # Display task form
     with st.form("habit_form", clear_on_submit=True):
-        uid = st.text_input("User ID")
+        uid = st.text_input("User ID", value=user_id)
         title = st.text_input("Title")
         notes = st.text_area("Notes")
         submitted = st.form_submit_button("Log")
 
         if submitted:
-            payload = {
-                "uid": uid.strip(),
-                "title": title.strip(),
-                "notes": notes.strip() or None,
-            }
+            payload = {"uid": uid.strip(), "title": title.strip(), "notes": notes.strip() or None}
             try:
                 resp = requests.post(f"{API_URL}/habits/create", json=payload, timeout=5)
                 if 200 <= resp.status_code < 300:
@@ -194,10 +204,37 @@ with col2:
             except Exception:
                 st.session_state["habit_logs"].append(payload)
                 st.warning("Logged locally (server unreachable).")
-            st.write(payload)
-
-    if st.session_state["habit_logs"]:
+            # st.write(payload)  # displays the raw payload for debugging
+    
+    # Display existing daily tasks
+    if daily_tasks or st.session_state["habit_logs"]:
         st.write("Recent Logs")
-        for h in st.session_state["habit_logs"][-5:][::-1]:
-            line = f"- {h['title']}"
-            st.markdown(line)
+
+        # Combine session state logs with API logs
+        all_logs = st.session_state["habit_logs"] + daily_tasks
+
+        for task in all_logs[::-1]:  # show newest first
+            task_id = task.get("id") or task.get("task_id")
+            title = task.get("title") or "Untitled"
+            notes = task.get("notes") or ""
+
+            with st.container():
+                col_title, col_notes, col_delete = st.columns([3, 3, 2])
+                col_title.write(f"**{title}**")
+                col_notes.write(notes)
+
+                if col_delete.button("Delete", key=f"delete_{task_id}"):
+                    if task_id:
+                        try:
+                            resp = requests.delete(f"{API_URL}/delete_daily_task/{task_id}", timeout=5)
+                            if resp.status_code == 200:
+                                st.success("Deleted task.")
+                                st.rerun()  # refresh the page
+                            else:
+                                st.error(f"Failed to delete task: {resp.status_code}")
+                        except Exception as e:
+                            st.error(f"Error deleting task: {e}")
+                    else:
+                        st.warning("Task not synced to server yet. Removing locally.")
+                        st.session_state["habit_logs"].remove(task)
+                        st.rerun()
