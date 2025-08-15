@@ -64,3 +64,34 @@ support - 6 (1 put, 1 delete)
 tags - 5 (1 post, 1 delete, 1 put)
 goals - 2
 daily tasks - 5
+
+
+# USER STORIES
+
+## 1 (Avery)
+As a freelancer, I want to have an archive of the projects I have completed.
+
+As a freelancer, I want to delete projects I am no longer interested in.
+
+As a freelancer, I want to log daily creative habits
+
+## 2 (Alan)
+As a professor, I want to be able to assign different priorities to projects.
+
+As a professor, I want my completed projects to be removed from my planner (but kept in the database) so I can look back.
+
+As a researcher, I want to be able to add projects to a database of potential projects.
+
+## 3 (Jose)
+As a system admin, I need to be able to see bugs that people report to me, so there should be a dashboard for people to report. (not complete)
+
+As a system admin, there should be a community forum where I can answer questions and hear community feedback which aren't necessarily bugs. 
+
+As a system admin, I need to mark bugs as resolved.
+
+## 4 (Jack)
+As a financial analyst, I need to set subgoals for my employees with checkboxes of whether the subgoal was met or not for the long term goal to succeed on time.
+
+As a financial analyst, I want to add new company goals. 
+
+As a financial analyst, I want to mark company goals as completed. (use jose template)
