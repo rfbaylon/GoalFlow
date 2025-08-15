@@ -28,7 +28,7 @@ def get_user_active_goals_with_priority(user_id):
     try:
         cursor = db.get_db().cursor()
         cursor.execute(
-            "SELECT id, title, notes, priority, completed "
+            "SELECT id, title, notes, priority, schedule, completed "
             "FROM goals g "
             "WHERE g.status = 'ACTIVE' AND g.userId = %s;",
             (user_id,)

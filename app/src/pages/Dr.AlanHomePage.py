@@ -73,7 +73,8 @@ with col1:
     with project_col2: 
         st.write("**Priority**")
     with project_col3: 
-        st.write("**Completion**")
+        # st.markdown("**Change Priority**")
+        st.markdown("**Completion &**  \n**Change Priority**")
     st.write("---")
 
     for project in projects:
@@ -82,28 +83,70 @@ with col1:
         with st.container():
             pc1, pc2, pc3 = st.columns([2, 1, 1])
 
+            # A. Project title + notes
             with pc1:
                 st.write(f":red[**{title}**]")
                 st.write(notes)
 
+            # B. Priority with color coding
             with pc2:
                 p = priority
                 if p == "critical":
-                    st.markdown(":red[**🔴 Critical!**]")
+                    st.markdown(f":red[**🔴 Critical!**]")
                 elif p == "high":
-                    st.markdown(":orange[**🟠 High**]")
+                    st.markdown(f":orange[**🟠 High**]")
                 elif p == "medium":
-                    st.markdown(":yellow[**🟡 Medium**]")
+                    st.markdown("<span style='color:#DAA520'><strong>🟡 Medium</strong></span>", unsafe_allow_html=True)
                 elif p == "low":
-                    st.markdown(":green[**🟢 Low**]")
+                    st.markdown(f":green[**🟢 Low**]")
                 else:
                     st.write(p)
 
+            # C. Interactive priority dropdown + mark complete button
             with pc3:
+                # 1. Map labels <--> values
+                label_to_val = {
+                    "🔴 Critical": "critical",
+                    "🟠 High":     "high",
+                    "🟡 Medium":   "medium",
+                    "🟢 Low":      "low",
+                }
+                val_to_label = {v: k for k, v in label_to_val.items()}
+
+                # 2. Preselect current priority
+                opts = list(label_to_val.keys())
+                default = val_to_label.get(priority, opts[-1])
+                idx = opts.index(default)
+
+                # 3. Render the dropdown
+                new_label = st.selectbox(
+                    "Priority",
+                    options=opts,
+                    index=idx,
+                    key=f"prio_select_{project_id}",
+                    label_visibility="collapsed"
+                )
+                new_priority = label_to_val[new_label]
+
+                # 4. Push change when clicked
+                if new_priority != priority:
+                    if st.button("Update Priority", key=f"prio_btn_{project_id}"):
+                        try:
+                            r = requests.put(f"http://web-api:4000/goals/{project_id}/priority", timeout=5)
+                            if r.status_code == 200:
+                                st.success("Priority updated!")
+                                st.rerun()
+                            else:
+                                st.error(f"Failed ({r.status_code})")
+                        except Exception as e:
+                            st.error(f"Error updating priority of project: {e}")
+
+                # 5. And still allow marking complete
+                st.write("")  # spacer
                 if completed == 0:
                     if st.button("Mark Complete", key=f"complete_{project_id}"):
                         try:
-                            response = requests.put(f'http://web-api:4000/goals/goals/{project_id}/complete')
+                            response = requests.put(f'http://web-api:4000/goals/{project_id}/complete', timeout=5)
                             if response.status_code == 200:
                                 st.success("Project marked as completed!")
                                 st.rerun()
@@ -111,9 +154,12 @@ with col1:
                                 st.error(f"Error: {response.status_code}")
                         except Exception as e:
                             st.error(f"Error updating project: {str(e)}")
+                        
                 else:
                     st.write("✅ Completed")
-            st.write("---")
+
+        st.write("---")
+
 
 
 
@@ -133,56 +179,7 @@ with col1:
     #                              ["ON ICE", "PLANNED", "ACTIVE", "ARCHIVED"],
     #                              index=1, key="proj1_status")
     
-    # st.write("---")
     
-    # with st.container():
-    #     st.write("**PROJECT #2** - Statistical Analysis Course Development")
-    #     proj2_col1, proj2_col2, proj2_col3 = st.columns([2, 1, 1])
-    #     with proj2_col1:
-    #         st.progress(0.4)
-    #         st.write("Curriculum Design")
-    #     with proj2_col2:
-    #         priority2 = st.selectbox("Priority:", 
-    #                                ["🔴 Critical", "🟠 High", "🟡 Medium", "🟢 Low"],
-    #                                index=1, key="proj2_priority")
-    #     with proj2_col3:
-    #         status2 = st.selectbox("Status:", 
-    #                              ["ON ICE", "PLANNED", "ACTIVE", "ARCHIVED"],
-    #                              index=0, key="proj2_status")
-    
-    # st.write("---")
-    
-    # with st.container():
-    #     st.write("**PROJECT #3** - Machine Learning Paper Publication")
-    #     proj3_col1, proj3_col2, proj3_col3 = st.columns([2, 1, 1])
-    #     with proj3_col1:
-    #         st.progress(0.9)
-    #         st.write("Final Review")
-    #     with proj3_col2:
-    #         priority3 = st.selectbox("Priority:", 
-    #                                ["🔴 Critical", "🟠 High", "🟡 Medium", "🟢 Low"],
-    #                                index=2, key="proj3_priority")
-    #     with proj3_col3:
-    #         status3 = st.selectbox("Status:", 
-    #                              ["ON ICE", "PLANNED", "ACTIVE", "ARCHIVED"],
-    #                              index=3, key="proj3_status")
-    
-    # st.write("---")
-    
-    # with st.container():
-    #     st.write("**PROJECT #4** - Student Thesis Supervision")
-    #     proj4_col1, proj4_col2, proj4_col3 = st.columns([2, 1, 1])
-    #     with proj4_col1:
-    #         st.progress(0.5)
-    #         st.write("Methodology Review")
-    #     with proj4_col2:
-    #         priority4 = st.selectbox("Priority:", 
-    #                                ["🔴 Critical", "🟠 High", "🟡 Medium", "🟢 Low"],
-    #                                index=3, key="proj4_priority")
-    #     with proj4_col3:
-    #         status4 = st.selectbox("Status:", 
-    #                              ["ON ICE", "PLANNED", "ACTVIE", "ARCHIVED"],
-    #                              index=1, key="proj4_status")
     with col2:
     # Academic Charts Section
         st.write("### 📊 RESEARCH OVERVIEW")
