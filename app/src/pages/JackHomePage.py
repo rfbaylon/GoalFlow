@@ -81,6 +81,7 @@ with col1:
         st.error("No user ID found. Please log in or select a user profile.")
         st.stop()
     user_id = 4 # Incase you refresh the page and it "logs you out" or something.
+    
     # GOALS
     try:
         goals = requests.get(f'http://web-api:4000/goals/user/{user_id}/active_and_priority').json()
@@ -89,7 +90,11 @@ with col1:
         goals = []
 
     goals = [
-        [item.get("id"), item.get("title"), item.get("notes"), item.get("schedule")]
+        [item.get("id"), 
+         item.get("title"), 
+         item.get("notes"), 
+         item.get("schedule")
+         ]
         for item in goals
     ]
 
