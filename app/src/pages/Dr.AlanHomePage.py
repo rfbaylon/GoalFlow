@@ -49,11 +49,19 @@ with col1:
     user_id = 3 # Incase you refresh the page and it "logs you out" or something.
 
     # PROJECTS (AKA: GOALS)
-    try:
-        projects = requests.get(f'http://web-api:4000/goals/user/{user_id}/active_and_priority').json()
-    except Exception as e:
-        st.error(f"Could not fetch projects: {e}")
-        projects = []
+    response = requests.get(f'http://web-api:4000/goals/user/{user_id}/active_and_priority', timeout=5)
+    st.write("Status Code:", response.status_code)
+    st.write("Raw JSON:", response.text)
+
+    # Now try to parse, letting any JSON errors bubble up
+    projects = response.json()
+
+
+    # try:
+    #     projects = requests.get(f'http://web-api:4000/goals/user/{user_id}/active_and_priority').json()
+    # except Exception as e:
+    #     st.error(f"Could not fetch projects: {e}")
+    #     projects = []
 
     projects = [
         [
@@ -160,25 +168,6 @@ with col1:
 
         st.write("---")
 
-
-
-
-    # # Research project cards with interactive dropdowns
-    # with st.container():
-    #     st.write("**PROJECT #1** - AI Statistical Models Research")
-    #     proj1_col1, proj1_col2, proj1_col3 = st.columns([2, 1, 1])
-    #     with proj1_col1:
-    #         st.progress(0.7)
-    #         st.write("Data Collectihase")on P
-    #     with proj1_col2:
-    #         priority1 = st.selectbox("Priority:", 
-    #                                ["🔴 Critical", "🟠 High", "🟡 Medium", "🟢 Low"],
-    #                                index=0, key="proj1_priority")
-    #     with proj1_col3:
-    #         status1 = st.selectbox("Status:", 
-    #                              ["ON ICE", "PLANNED", "ACTIVE", "ARCHIVED"],
-    #                              index=1, key="proj1_status")
-    
     
     with col2:
     # Academic Charts Section
