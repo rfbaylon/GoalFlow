@@ -230,18 +230,19 @@ with col2:
 
     # Display task form
     with st.form("habit_form", clear_on_submit=True):
-        uid = st.text_input("User ID", value=user_id)
+        userId = st.text_input("User ID", value=user_id)
         title = st.text_input("Title")
         notes = st.text_area("Notes")
         submitted = st.form_submit_button("Log")
 
         if submitted:
-            payload = {"uid": uid.strip(), "title": title.strip(), "notes": notes.strip() or None}
+            payload = {"userId": int(userId), "title": title.strip(), "notes": notes.strip() or None}
             try:
                 resp = requests.post(f"{API_URL}/habits/create", json=payload, timeout=5)
                 if 200 <= resp.status_code < 300:
                     st.success("Logged.")
                 else:
+                    st.write(resp.status_code)
                     st.session_state["habit_logs"].append(payload)
                     st.warning("Logged locally (server endpoint not ready).")
             except Exception:
