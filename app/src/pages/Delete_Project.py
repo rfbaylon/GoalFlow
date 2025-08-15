@@ -50,9 +50,8 @@ with st.form("delete_project_form"):
     
     st.write("")
     
-    # Initialize these variables
+    # Initialize confirm_delete
     confirm_delete = False
-    deletion_reason = ""
     
     if selected_project != "Select a project...":
         # Find the full project info
@@ -76,16 +75,10 @@ with st.form("delete_project_form"):
             
             st.write("")
             
-            # FIXED: These need to be INSIDE the if block and properly indented
+            # FIXED: Simple confirmation checkbox only
             confirm_delete = st.checkbox(
                 f"I understand that '{selected_project}' will be permanently deleted",
                 help="Check this box to confirm you want to delete this project"
-            )
-            
-            deletion_reason = st.text_area(
-                "Reason for deletion (optional):",
-                placeholder="Project cancelled, Duplicate entry, No longer relevant...",
-                help="This helps us improve the app"
             )
 
     st.write("")
@@ -111,8 +104,6 @@ if delete_button and confirm_delete and selected_project != "Select a project...
         if delete_resp.status_code == 200:
             st.success(f"✅ Project '{selected_project}' has been successfully deleted!")
             st.balloons()
-            if deletion_reason:
-                logger.info(f"Project deleted: {selected_project}. Reason: {deletion_reason}")
             st.info("Redirecting to dashboard in 3 seconds...")
         else:
             st.error(f"Failed to delete project: {delete_resp.text}")
@@ -135,4 +126,4 @@ with st.expander("ℹ️ What happens when I delete a project?"):
     - Mark the project as 'Completed' instead
     - Archive the project for future reference
     - Put the project 'On Hold' temporarily
-    """) 
+    """)
