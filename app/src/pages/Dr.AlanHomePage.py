@@ -136,7 +136,9 @@ with col1:
                 if new_priority != priority:
                     if st.button("Update Priority", key=f"prio_btn_{project_id}"):
                         try:
-                            r = requests.put(f"http://web-api:4000/goals/{project_id}/priority", timeout=5)
+                            r = requests.put(f"http://web-api:4000/goals/{project_id}/priority", 
+                                        json={"priority": new_priority},
+                                        headers={"Content-Type": "application/json"}, timeout=5)
                             if r.status_code == 200:
                                 st.success("Priority updated!")
                                 st.rerun()
@@ -147,10 +149,14 @@ with col1:
 
                 # 5. And still allow marking complete
                 st.write("")  # spacer
-                if completed == 0 and status == "ACTIVE":
+
+                if int(completed or 0) == 0:
                     if st.button("Mark Complete", key=f"complete_{project_id}"):
                         try:
-                            response = requests.put(f'http://web-api:4000/goals/{project_id}/complete', timeout=5)
+                            response = requests.put(
+                                f'http://web-api:4000/goals/{project_id}/complete',
+                                timeout=5
+                            )
                             if response.status_code == 200:
                                 st.success("Project marked as completed!")
                                 st.rerun()
@@ -158,9 +164,9 @@ with col1:
                                 st.error(f"Error: {response.status_code}")
                         except Exception as e:
                             st.error(f"Error updating project: {str(e)}")
-                            
-                    else:
-                        st.write("✅ Completed")
+                else:
+                    st.write("✅ Completed")
+
 
         st.write("---")
 
