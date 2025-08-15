@@ -2,16 +2,17 @@
 # app/pages/Dr.AlanHomePage.py
 import logging
 
+logger = logging.getLogger(__name__)
 logging.basicConfig(
     format='%(filename)s:%(lineno)s:%(levelname)s -- %(message)s', 
     level=logging.INFO)
-logger = logging.getLogger(__name__)
 
 from modules.nav import SideBarLinks
 import streamlit as st
 import requests
 import pandas as pd
 import plotly.express as px
+import re
 
 
 
@@ -19,13 +20,9 @@ import plotly.express as px
 
 #                   ===== UI LAYOUT =====                   #
 # Left Side Bar that links abck to Home Page / About Page.
-st.set_page_config(layout = 'wide')
+st.set_page_config(layout='wide')
 st.session_state['authenticated'] = False
 SideBarLinks(show_home=True)
-# if 'authenticated' not in st.session_state:
-#     st.session_state['authenticated'] = False
-# if "role" not in st.session_state:
-#     st.session_state["role"] = None  # or a sensible default like "guest"
 
 # Header
 st.title("📚 Good Morning, Dr. Alan!")
@@ -42,9 +39,6 @@ col1, col2 = st.columns([2, 1])
 with col1:
     st.write("### 🔬 ACTIVE RESEARCH PROJECTS")
 
-        # --- Explicit mapping and display of Goals (Projects)  ---
-    # Map only the attributes I want to display from the API response.
-
     # SETS THE USER_ID BASED UPON SESSION STATE.
     user_id = st.session_state.get("user_id")
     if not user_id:
@@ -52,39 +46,22 @@ with col1:
         st.stop()
     # user_id = 2 # Incase you refresh the page and it "logs you out" or something.
 
-    # PROJECTS (AKA: GOALS)
-    # response = requests.get(f'http://web-api:4000/goals/user/{user_id}/active_and_priority', timeout=5)
-    # st.write("Status Code:", response.status_code)
-    # st.write("Raw JSON:", response.text)
-
-    # # Now try to parse, letting any JSON errors bubble up
-    # projects = response.json()
-
-
-    # try:
-    #     projects = requests.get(f'http://web-api:4000/goals/user/{user_id}/active_and_priority', timeout=5).json()
-
-    #     # # Convert tuples to dictionaries
-    #     # columns = ["id", "title", "notes", "priority", "completed", "schedule"]
-    #     # projects = [dict(zip(columns, item)) for item in raw_projects]
-
-    # except Exception as e:
-    #     st.error(f"Could not fetch projects: {e}")
-    #     projects = []
-
+    # FETCH PROJECTS (AKA: GOALS)
     try:
         projects = requests.get(f'http://web-api:4000/goals/user/{user_id}/active_and_priority').json()
     except Exception as e:
         st.error(f"Could not fetch projects: {e}")
         projects = []
 
+        # --- Explicit mapping and display of Goals (Projects)  ---
+    # Map only the attributes I want to display from the API response.
     projects = [
         [
-            item.get("id"),         # 0 - goal_id
-            item.get("title"),      # 1 - title
-            item.get("notes"),      # 2 - notes/description
-            item.get("priority"),   # 3 - priority
-            item.get("completed"),  # 4 - completed
+        item.get("id"),         # 0 - goal_id
+        item.get("title"),      # 1 - title
+        item.get("notes"),      # 2 - notes/description
+        item.get("priority"),   # 3 - priority
+        item.get("completed"),  # 4 - completed
         ]
         for item in projects
     ]
@@ -106,10 +83,12 @@ with col1:
         with st.container():
             pc1, pc2, pc3 = st.columns([2, 1, 1])
 
+
             # A. Project title + notes
             with pc1:
                 st.write(f":red[**{title}**]")
                 st.write(notes)
+
 
             # B. Priority with color coding
             with pc2:
@@ -124,6 +103,7 @@ with col1:
                     st.markdown(f":green[**🟢 Low**]")
                 else:
                     st.write(p)
+
 
             # C. Interactive priority dropdown + mark complete button
             with pc3:
@@ -177,9 +157,9 @@ with col1:
                                 st.error(f"Error: {response.status_code}")
                         except Exception as e:
                             st.error(f"Error updating project: {str(e)}")
-                        
-                else:
-                    st.write("✅ Completed")
+                            
+                    else:
+                        st.write("✅ Completed")
 
         st.write("---")
 
