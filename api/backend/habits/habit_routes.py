@@ -10,22 +10,22 @@ habits = Blueprint("habits", __name__)
 def add_habit():
     try:
         data = request.get_json()
-        uid = data.get("uid")
+        userId = data.get("userId")
         title = data.get("title")
         notes = data.get("notes")
 
         if not data:
             return jsonify({"error": "No data provided"}), 400
         
-        if not uid or not title:
+        if not userId or not title:
             return jsonify({"error": "userID and title are required"}), 400
 
         cursor = db.get_db().cursor()
         query = """
-            INSERT INTO daily_tasks (userId, title, notes, createdAt)
-            VALUES (%s, %s, %s, NOW())
+            INSERT INTO daily_tasks (userId, title, notes, completed, status)
+            VALUES (%s, %s, %s, 1, "ARCHIVED")
         """
-        cursor.execute(query, (uid, title, notes))
+        cursor.execute(query, (userId, title, notes))
         db.get_db().commit()
         cursor.close()
 
