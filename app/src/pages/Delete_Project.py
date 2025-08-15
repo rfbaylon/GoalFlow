@@ -1,47 +1,47 @@
 import logging
-logger = logging.getLogger(__name__)
-
 import streamlit as st
 import requests
 from modules.nav import SideBarLinks
+
+logger = logging.getLogger(__name__)
 
 st.set_page_config(layout='wide')
 
 # SIDEBAR
 SideBarLinks()
 
-# BACK 
+# BACK BUTTON & TITLE
 col_back, col_title = st.columns([1, 4])
 with col_back:
-    if st.button("← Back to Dashboard"):
-        st.switch_page('pages/Home.py')
+    if st.button("← Back to Dr. Alan Home"):
+        st.switch_page('pages/Dr.AlanHomePage.py')
 
 with col_title:
     st.title("🗑️ Delete Project")
     st.write("*Permanently remove a project from your goals*")
 
 st.write("")
-
-# Warning message
 st.warning("⚠️ **Warning**: This action cannot be undone. The project will be permanently deleted from the database.")
-
 st.write("")
 
-# Main form
+# --- Fetch projects from API ---
+try:
+    response = requests.get("http://web-api:4000/goals/user/2/active_and_priority")
+    response.raise_for_status()
+    project_data = response.json()
+except Exception as e:
+    st.error(f"Failed to fetch projects: {e}")
+    project_data = []
+
+# Map project title → ID
+project_map = {proj["title"]: proj["id"] for proj in project_data}
+
+# Dropdown options
+project_options = ["Select a project..."] + list(project_map.keys())
+
+# --- Main form ---
 with st.form("delete_project_form"):
     st.write("### Select Project to Delete")
-    
-    # SAMPLE PROJ DROPDOWN (FROM DB)
-    project_options = [
-        "Select a project...",
-        "Increase Revenue by 5%", 
-        "Complete Research Paper",
-        "App Feature Development",
-        "Statistical Analysis Study",
-        "Community Forum Enhancement",
-        "User Documentation Update"
-    ]
-    
     selected_project = st.selectbox(
         "Choose the project you want to delete:",
         project_options,
@@ -50,105 +50,67 @@ with st.form("delete_project_form"):
     
     st.write("")
     
-    # PROJ DETAILS (woulda be populated)
+    # Initialize confirm_delete
+    confirm_delete = False
+    
     if selected_project != "Select a project...":
-        st.write("### Project Details")
+        # Find the full project info
+        proj = next((p for p in project_data if p["title"] == selected_project), None)
         
-        # Show project info in a nice container
-        with st.container():
-            detail_col1, detail_col2 = st.columns(2)
-            
-            with detail_col1:
-                st.write("**Project Name:**")
-                st.write(selected_project)
-                st.write("")
-                st.write("**Current Status:**")
-                st.write("In Progress")
+        if proj:
+            st.write("### Project Details")
+            with st.container():
+                detail_col1, detail_col2 = st.columns(2)
                 
-            with detail_col2:
-                st.write("**Created Date:**")
-                st.write("January 15, 2025")
-                st.write("")
-                st.write("**Progress:**")
-                st.progress(0.6)
-                st.write("60% Complete")
-        
-        st.write("")
-        
-        # CHECKBOX THING
-        confirm_delete = st.checkbox(
-            f"I understand that '{selected_project}' will be permanently deleted",
-            help="Check this box to confirm you want to delete this project"
-        )
-        
-        st.write("")
-        
-        # DELETION REASON
-        deletion_reason = st.text_area(
-            "Reason for deletion (optional):",
-            placeholder=" Project cancelled, Duplicate entry, No longer relevant...",
-            help="This helps us improve the app"
-        )
-    
-    else:
-        confirm_delete = False
-        deletion_reason = ""
-    
-    st.write("")
-    
-    # FORM SUBMISSION DETAILS
-    col1, col2, col3 = st.columns([1, 1, 1])
-    
-    with col1:
-        cancel_button = st.form_submit_button(
-            "Cancel", 
-            use_container_width=True
-        )
-    
-    with col2:
-        # SPACING - MT
-        pass
-    
-    with col3:
-        delete_button = st.form_submit_button(
-            "🗑️ Delete Project", 
-            type="primary",
-            use_container_width=True,
-            disabled=not confirm_delete or selected_project == "Select a project..."
-        )
+                with detail_col1:
+                    st.write("**Project Name:**", proj["title"])
+                    st.write("**Current Status:**", "In Progress" if not proj.get("completed") else "Completed")
+                
+                with detail_col2:
+                    created_at = proj.get("createdAt", "Unknown date")
+                    st.write("**Created Date:**", created_at)
+                    st.write("**Progress:**")
+                    st.progress(0.6)  # Placeholder — replace with real progress if available
+                    st.write("60% Complete")
+            
+            st.write("")
+            
+            # FIXED: Simple confirmation checkbox only
+            confirm_delete = st.checkbox(
+                f"I understand that '{selected_project}' will be permanently deleted",
+                help="Check this box to confirm you want to delete this project"
+            )
 
-# FOR HANDLING THE FORM SUBMISSION THING
+    st.write("")
+    col1, _, col3 = st.columns([1, 1, 1])
+    
+    cancel_button = col1.form_submit_button("Cancel", use_container_width=True)
+    delete_button = col3.form_submit_button(
+        "🗑️ Delete Project", 
+        type="primary",
+        use_container_width=True,
+        disabled=not confirm_delete or selected_project == "Select a project..."
+    )
+
+# --- Handle actions ---
 if cancel_button:
     st.info("Operation cancelled. Returning to dashboard...")
-    st.switch_page('pages/Home.py')
+    st.switch_page('pages/Dr.AlanHomePage.py')
 
 if delete_button and confirm_delete and selected_project != "Select a project...":
-    # In a real app, you'd make an API call here to delete from database
-    # Example API call:
-    # try:
-    #     response = requests.delete(f"http://api:4000/goals/{project_id}")
-    #     if response.status_code == 200:
-    #         st.success("Project deleted successfully!")
-    #     else:
-    #         st.error("Failed to delete project. Please try again.")
-    # except Exception as e:
-    #     st.error(f"Error: {str(e)}")
-    
-    # For now, just show success message
-    st.success(f"✅ Project '{selected_project}' has been successfully deleted!")
-    st.balloons()
-    
-    # Log the deletion reason if provided
-    if deletion_reason:
-        logger.info(f"Project deleted: {selected_project}. Reason: {deletion_reason}")
-    
-    st.write("")
-    st.info("Redirecting to dashboard in 3 seconds...")
-    
-    # Auto-redirect after success 
-    # st.rerun()
+    project_id = project_map[selected_project]
+    try:
+        delete_resp = requests.delete(f"http://web-api:4000/goals/{project_id}/delete")
+        if delete_resp.status_code == 200:
+            st.success(f"✅ Project '{selected_project}' has been successfully deleted!")
+            st.balloons()
+            st.info("Redirecting to dashboard in 3 seconds...")
+        else:
+            st.error(f"Failed to delete project: {delete_resp.text}")
+    except Exception as e:
+        st.error(f"Error deleting project: {e}")
 
-# EXTRA INFO SEC
+# --- Extra info ---
 st.write("")
 st.write("---")
 
@@ -165,6 +127,3 @@ with st.expander("ℹ️ What happens when I delete a project?"):
     - Archive the project for future reference
     - Put the project 'On Hold' temporarily
     """)
-
-st.write("")
-st.write("Need help? Contact support or return to your dashboard.")

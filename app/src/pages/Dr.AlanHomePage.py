@@ -135,11 +135,7 @@ with col1:
                 if new_priority != priority:
                     if st.button("Update Priority", key=f"prio_btn_{project_id}"):
                         try:
-                            r = requests.put(
-                                f"http://web-api:4000/goals/{project_id}/priority",
-                                json={"priority": new_priority},  # <- send as JSON
-                                timeout=5
-                            )
+                            r = requests.put(f"http://web-api:4000/goals/{project_id}/priority", timeout=5)
                             if r.status_code == 200:
                                 st.success("Priority updated!")
                                 st.rerun()
@@ -183,4 +179,4 @@ with bottom_col2:
 
 with bottom_col3:
     if st.button("🏠 Return To Dashboard", type="primary", use_container_width=True):
-        st.switch_page('HomePage.py')
+        st.switch_page('Home.py')
