@@ -88,95 +88,95 @@ with col1:
 
     for project in projects: # change this backt projects
         project_id, title, notes, priority, completed, status = project
-
-        with st.container():
-            pc1, pc2, pc3 = st.columns([2, 1, 1])
-
-
-            # A. Project title + notes
-            with pc1:
-                st.write(f":red[**{title}**]")
-                st.write(notes)
+        if completed == 0:
+            with st.container():
+                pc1, pc2, pc3 = st.columns([2, 1, 1])
 
 
-            # B. Priority with color coding
-            with pc2:
-                p = priority
-                if p == "critical":
-                    st.markdown(f":red[**🔴 Critical!**]")
-                elif p == "high":
-                    st.markdown(f":orange[**🟠 High**]")
-                elif p == "medium":
-                    st.markdown("<span style='color:#DAA520'><strong>🟡 Medium</strong></span>", unsafe_allow_html=True)
-                elif p == "low":
-                    st.markdown(f":green[**🟢 Low**]")
-                else:
-                    st.write(p)
+                # A. Project title + notes
+                with pc1:
+                    st.write(f":red[**{title}**]")
+                    st.write(notes)
 
 
-            # C. Interactive priority dropdown + mark complete button
-            with pc3:
-                # 1. Map labels <--> values
-                label_to_val = {
-                    "🔴 Critical": "critical",
-                    "🟠 High":     "high",
-                    "🟡 Medium":   "medium",
-                    "🟢 Low":      "low",
-                }
-                val_to_label = {v: k for k, v in label_to_val.items()}
-
-                # 2. Preselect current priority
-                opts = list(label_to_val.keys())
-                default = val_to_label.get(priority, opts[-1])
-                idx = opts.index(default)
-
-                # 3. Render the dropdown
-                new_label = st.selectbox(
-                    "Priority",
-                    options=opts,
-                    index=idx,
-                    key=f"prio_select_{project_id}",
-                    label_visibility="collapsed"
-                )
-                new_priority = label_to_val[new_label]
-
-                # 4. Push change when clicked
-                if new_priority != priority:
-                    if st.button("Update Priority", key=f"prio_btn_{project_id}"):
-                        try:
-                            r = requests.put(f"http://web-api:4000/goals/{project_id}/priority", 
-                                        json={"priority": new_priority},
-                                        headers={"Content-Type": "application/json"}, timeout=5)
-                            if r.status_code == 200:
-                                st.success("Priority updated!")
-                                st.rerun()
-                            else:
-                                st.error(f"Failed ({r.status_code})")
-                        except Exception as e:
-                            st.error(f"Error updating priority of project: {e}")
-
-                # 5. And still allow marking complete
-                st.write("")  # spacer
-
-                if int(completed or 0) == 0:
-                    if st.button("Mark Complete", key=f"complete_{project_id}"):
-                        try:
-                            response = requests.put(
-                                f'http://web-api:4000/goals/{project_id}/complete',
-                                timeout=5
-                            )
-                            if response.status_code == 200:
-                                st.success("Project marked as completed!")
-                                st.rerun()
-                            else:
-                                st.error(f"Error marking complete: {response.status_code}")
-                        except Exception as e:
-                            st.error(f"Error updating project: {str(e)}")
-
-                            st.write("---")
+                # B. Priority with color coding
+                with pc2:
+                    p = priority
+                    if p == "critical":
+                        st.markdown(f":red[**🔴 Critical!**]")
+                    elif p == "high":
+                        st.markdown(f":orange[**🟠 High**]")
+                    elif p == "medium":
+                        st.markdown("<span style='color:#DAA520'><strong>🟡 Medium</strong></span>", unsafe_allow_html=True)
+                    elif p == "low":
+                        st.markdown(f":green[**🟢 Low**]")
+                    else:
+                        st.write(p)
 
 
-        st.write("---")
+                # C. Interactive priority dropdown + mark complete button
+                with pc3:
+                    # 1. Map labels <--> values
+                    label_to_val = {
+                        "🔴 Critical": "critical",
+                        "🟠 High":     "high",
+                        "🟡 Medium":   "medium",
+                        "🟢 Low":      "low",
+                    }
+                    val_to_label = {v: k for k, v in label_to_val.items()}
+
+                    # 2. Preselect current priority
+                    opts = list(label_to_val.keys())
+                    default = val_to_label.get(priority, opts[-1])
+                    idx = opts.index(default)
+
+                    # 3. Render the dropdown
+                    new_label = st.selectbox(
+                        "Priority",
+                        options=opts,
+                        index=idx,
+                        key=f"prio_select_{project_id}",
+                        label_visibility="collapsed"
+                    )
+                    new_priority = label_to_val[new_label]
+
+                    # 4. Push change when clicked
+                    if new_priority != priority:
+                        if st.button("Update Priority", key=f"prio_btn_{project_id}"):
+                            try:
+                                r = requests.put(f"http://web-api:4000/goals/{project_id}/priority", 
+                                            json={"priority": new_priority},
+                                            headers={"Content-Type": "application/json"}, timeout=5)
+                                if r.status_code == 200:
+                                    st.success("Priority updated!")
+                                    st.rerun()
+                                else:
+                                    st.error(f"Failed ({r.status_code})")
+                            except Exception as e:
+                                st.error(f"Error updating priority of project: {e}")
+
+                    # 5. And still allow marking complete
+                    st.write("")  # spacer
+
+                    if completed == 0:
+                        if st.button("Mark Complete", key=f"complete_{project_id}"):
+                            try:
+                                response = requests.put(
+                                    f'http://web-api:4000/goals/{project_id}/complete',
+                                    timeout=5
+                                )
+                                if response.status_code == 200:
+                                    st.success("Project marked as completed!")
+                                    st.rerun()
+                                else:
+                                    st.error(f"Error marking complete: {response.status_code}")
+                            except Exception as e:
+                                st.error(f"Error updating project: {str(e)}")
+
+                                st.write("---")
+
+
+            st.write("---")
 
     
     
