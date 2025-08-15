@@ -26,7 +26,7 @@ st.write("")
 
 # --- Fetch projects from API ---
 try:
-    response = requests.get("http://web-api:4000/goals/user/2/active_and_priority")  # <-- fixed underscore
+    response = requests.get("http://web-api:4000/goals/user/2/active_and_priority")
     response.raise_for_status()
     project_data = response.json()
 except Exception as e:
@@ -50,6 +50,7 @@ with st.form("delete_project_form"):
     
     st.write("")
     
+    # Initialize these variables
     confirm_delete = False
     deletion_reason = ""
     
@@ -62,28 +63,29 @@ with st.form("delete_project_form"):
             with st.container():
                 detail_col1, detail_col2 = st.columns(2)
                 
-            with detail_col1:
+                with detail_col1:
                     st.write("**Project Name:**", proj["title"])
                     st.write("**Current Status:**", "In Progress" if not proj.get("completed") else "Completed")
                 
-            with detail_col2:
+                with detail_col2:
                     created_at = proj.get("createdAt", "Unknown date")
                     st.write("**Created Date:**", created_at)
                     st.write("**Progress:**")
                     st.progress(0.6)  # Placeholder — replace with real progress if available
                     st.write("60% Complete")
             
+            st.write("")
+            
+            # FIXED: These need to be INSIDE the if block and properly indented
             confirm_delete = st.checkbox(
                 f"I understand that '{selected_project}' will be permanently deleted",
-                help="Check this box to confirm you want to delete this project",
-                key='confirm_delete' 
+                help="Check this box to confirm you want to delete this project"
             )
             
             deletion_reason = st.text_area(
                 "Reason for deletion (optional):",
                 placeholder="Project cancelled, Duplicate entry, No longer relevant...",
-                help="This helps us improve the app",
-                key='deletion_reason'
+                help="This helps us improve the app"
             )
 
     st.write("")
@@ -133,4 +135,4 @@ with st.expander("ℹ️ What happens when I delete a project?"):
     - Mark the project as 'Completed' instead
     - Archive the project for future reference
     - Put the project 'On Hold' temporarily
-    """)
+    """) 
