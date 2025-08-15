@@ -201,7 +201,7 @@ with col2:
 
     df_scatter = pd.DataFrame(goals)
     df_scatter['schedule'] = pd.to_datetime(df_scatter.get('schedule', pd.NaT))
-    df_scatter['priority'] = df_scatter.get('priority', 'high')
+    df_scatter['priority'] = df_scatter.get('priority', 'critical')
     df_scatter['status'] = df_scatter.get('status', 'PLANNED')
     df_scatter['title'] = df_scatter.get('title', 'Untitled')
 
@@ -211,7 +211,7 @@ with col2:
         y='priority',
         hover_data=['title', 'notes', 'priority'],
         labels={'priority': 'Priority', 'schedule': 'Deadline'},
-        title='High Priority Goals',
+        title='Critical Priority Goals',
         height=500
     )
 
