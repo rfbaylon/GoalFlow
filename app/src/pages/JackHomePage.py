@@ -274,38 +274,6 @@ def api_get_tag_by_id(tag_id: int):
 
 st.write("### 🏷️ Tags")
 
-# Create
-with st.expander("Create a tag", expanded=True):
-    c1, c2, c3 = st.columns([2, 1, 1])
-    with c1:
-        new_tag_name = st.text_input("Name (optional)", key="tag_new_name")
-    with c2:
-        new_tag_color = st.color_picker("Color (required)", value="#ff9900", key="tag_new_color")
-    with c3:
-        if st.button("Create", key="btn_create_tag", use_container_width=True, type="primary"):
-            if not new_tag_color or not HEX_PATTERN.match(new_tag_color.strip()):
-                st.error("Valid hex color is required.")
-            else:
-                try:
-                    r = api_create_tag(new_tag_name or "", new_tag_color)
-                    # must be 2xx JSON here
-                    data = r.json()
-                    tag_id = data.get("tag_id") or data.get("id")
-                    if tag_id is None:
-                        st.error("Create succeeded but server did not return tag_id.")
-                    else:
-                        try:
-                            rid = int(tag_id)
-                            _sync_from_query_if_needed()
-                            if rid not in st.session_state["created_tag_ids"]:
-                                st.session_state["created_tag_ids"].append(rid)
-                            _sync_to_query()
-                            st.success("Tag created.")
-                            st.rerun()
-                        except Exception:
-                            st.error(f"Invalid tag_id from server: {tag_id}")
-                except Exception as e:
-                    st.error(f"Create failed: {e}")
 
 # Delete by ID (manual)
 with st.expander("Delete a tag by ID", expanded=False):
@@ -329,49 +297,3 @@ with st.expander("Delete a tag by ID", expanded=False):
                 except Exception as e:
                     st.error(f"Delete failed: {e}")
 
-# Render (fetch each from SERVER so name/color persist across refresh)
-_sync_from_query_if_needed()
-server_tags = []
-for tid in st.session_state["created_tag_ids"]:
-    try:
-        r = api_get_tag_by_id(int(tid))  # must be 2xx JSON
-        server_tags.append(r.json())
-    except Exception as e:
-        st.warning(f"Failed to fetch tag {tid}: {e}")
-
-st.caption(f"Created (server): {len(server_tags)} tag(s)")
-
-for idx, t in enumerate(server_tags):
-    # robust extraction
-    tid = t.get("id") or t.get("tag_id")
-    name = t.get("name") or ""
-    color = safe_hex_color(t.get("color"), "#999999")
-    try:
-        tid_int = int(tid)
-    except Exception:
-        tid_int = None
-    uniq = f"{tid}_{idx}"
-
-    with st.container():
-        r1, r2 = st.columns([5, 1])
-        with r1:
-            st.write(f"**{name}**  ·  `{tid}`")
-            st.markdown(
-                f"<div style='width:18px;height:18px;border-radius:4px;background:{color};border:1px solid #ccc;display:inline-block;margin-top:4px;'></div>",
-                unsafe_allow_html=True
-            )
-        with r2:
-            if st.button("Delete", key=f"btn_delete_tag_{uniq}", use_container_width=True):
-                if tid_int is None:
-                    st.error("Cannot delete: invalid tag id.")
-                else:
-                    try:
-                        api_delete_tag(tid_int)  # raises if no 2xx
-                        _sync_from_query_if_needed()
-                        st.session_state["created_tag_ids"] = [x for x in st.session_state["created_tag_ids"] if x != tid_int]
-                        _sync_to_query()
-                        st.success("Tag deleted.")
-                        st.rerun()
-                    except Exception as e:
-                        st.error(f"Delete failed: {e}")
-    st.write("---")

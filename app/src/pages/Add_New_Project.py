@@ -8,8 +8,8 @@ c1, c2 = st.columns([4, 1])
 with c1: 
     st.title("Add New Project")
 with c2:
-    if st.button("Homepage", help="Return Home", type="primary", use_container_width=True):
-        st.switch_page('Home.py')
+    if st.button("Dr. Alan Home", help="Return to Dr. Alan home page", type="primary", use_container_width=True):
+        st.switch_page('pages/Dr.AlanHomePage.py')
 
 
 # Form inputs
