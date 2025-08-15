@@ -41,13 +41,14 @@ PLEASE LABEL WHERE YOUR PUT/POST/DELETE ROUTES ARE
         - Added subgoals Completed by Ryan
     - [X] Jack Feature 2
         -Added graphs done by Jaden 
-    - [ ] Jack Feature 3
+    - [X] Jack Feature 3
+        -Delete tag by Hyeyeong
 
 - [ ] Alan Landing Page
     - [x] Alan Feature 1 **POST**
         - 2.3 done by ry
-    - [ ] Alan Feature 2
-    - [ ] Alan Feature 3
+    - [X] Alan Feature 2
+    - [X] Alan Feature 3
 
 - [ ] Avery Landing Page
     - [x] Avery Feature 1 **PUT**
