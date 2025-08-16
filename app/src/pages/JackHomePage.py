@@ -211,7 +211,7 @@ with col2:
         y='priority',
         hover_data=['title', 'notes', 'priority'],
         labels={'priority': 'Priority', 'schedule': 'Deadline'},
-        title='Critical Priority Goals',
+        title='Goal Deadline By Priority',
         height=500
     )
 
