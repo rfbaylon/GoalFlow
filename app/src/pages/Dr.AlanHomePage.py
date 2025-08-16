@@ -165,12 +165,11 @@ with col1:
                                 st.success("Project marked as completed!")
                                 st.rerun()
                             else:
-                                st.error(f"Error: {response.status_code}")
+                                st.error(f"Error marking complete: {response.status_code}")
                         except Exception as e:
                             st.error(f"Error updating project: {str(e)}")
-                            
-                    else:
-                        st.write("✅ Completed")
+
+                            st.write("---")
 
             st.write("---")
 
