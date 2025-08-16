@@ -155,21 +155,21 @@ with col1:
                             except Exception as e:
                                 st.error(f"Error updating priority of project: {e}")
 
-                # 5. And still allow marking complete
-                st.write("")  # spacer
-                if completed == 0:
-                    if st.button("Mark Complete", key=f"complete_{project_id}"):
-                        try:
-                            response = requests.put(f'http://web-api:4000/goals/{project_id}/complete', timeout=5)
-                            if response.status_code == 200:
-                                st.success("Project marked as completed!")
-                                st.rerun()
-                            else:
-                                st.error(f"Error marking complete: {response.status_code}")
-                        except Exception as e:
-                            st.error(f"Error updating project: {str(e)}")
+                    # 5. And still allow marking complete
+                    st.write("")  # spacer
+                    if completed == 0:
+                        if st.button("Mark Complete", key=f"complete_{project_id}"):
+                            try:
+                                response = requests.put(f'http://web-api:4000/goals/{project_id}/complete', timeout=5)
+                                if response.status_code == 200:
+                                    st.success("Project marked as completed!")
+                                    st.rerun()
+                                else:
+                                    st.error(f"Error marking complete: {response.status_code}")
+                            except Exception as e:
+                                st.error(f"Error updating project: {str(e)}")
 
-                            st.write("---")
+                                st.write("---")
 
             st.write("---")
 
